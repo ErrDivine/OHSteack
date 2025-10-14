@@ -8,11 +8,11 @@ echo "OHSteack 生产环境更新脚本"
 echo "========================================="
 
 # 配置变量
-APP_DIR="/var/www/ohsteack"
-BACKUP_DIR="/var/backups/ohsteack"
-BRANCH="main"
-USER="www-data"
-GROUP="www-data"
+APP_DIR="/home/admin/OHSteack"
+BACKUP_DIR="/home/admin/backups/ohsteack"
+BRANCH="cursor"
+USER="admin"
+GROUP="sudo"
 
 # 检查是否以root权限运行
 if [[ $EUID -ne 0 ]]; then
@@ -51,7 +51,7 @@ sudo -u "$USER" "$APP_DIR"/venv/bin/pip install -r requirements.txt
 
 # 运行数据库迁移
 echo "正在检查数据库迁移..."
-sudo -u "$USER" "$APP_DIR"/venv/bin/flask db upgrade
+sudo -u "$USER" FLASK_APP=run.py FLASK_ENV=production "$APP_DIR"/venv/bin/flask db upgrade
 
 # 收集静态文件（如果需要）
 # echo "正在收集静态文件..."
@@ -64,10 +64,10 @@ find . -type f -name "*.pyc" -delete 2>/dev/null || true
 
 # 重新加载应用
 echo "正在重新加载应用..."
-supervisorctl restart ohsteack
+supervisorctl restart ohsteack || supervisorctl start ohsteack
 
 # 重新加载Nginx（如果配置有更改）
-if git diff HEAD@{1} HEAD --name-only | grep -q "^deployment/nginx/"; then
+if sudo -u "$USER" git diff HEAD@{1} HEAD --name-only | grep -q "^deployment/nginx/"; then
     echo "检测到Nginx配置更改，正在重新加载..."
     cp deployment/nginx/ohsteack.conf /etc/nginx/sites-available/
     nginx -t && systemctl reload nginx
@@ -80,7 +80,7 @@ fi
 # 健康检查
 echo "正在进行健康检查..."
 sleep 5
-if curl -f -s -o /dev/null http://localhost; then
+if curl -f -s -o /dev/null http://127.0.0.1:81; then
     echo "✓ 应用运行正常"
 else
     echo "✗ 应用可能存在问题，请检查日志"

@@ -8,16 +8,36 @@ echo "OHSteack 生产环境部署脚本"
 echo "========================================="
 
 # 配置变量
-APP_DIR="/var/www/ohsteack"
-REPO_URL="https://github.com/yourusername/ohsteack.git"  # 修改为实际的仓库地址
-BRANCH="main"
-USER="www-data"
-GROUP="www-data"
+APP_DIR="/home/admin/OHSteack"
+REPO_URL="git@github.com:ErrDivine/OHSteack.git"  # 修改为实际的仓库地址
+BRANCH="cursor"
+USER="admin"
+GROUP="sudo"
+DB_NAME="ohsteack"
+DB_USER="admin"
+DB_PASS="Sun1590044500"
+
 
 # 检查是否以root权限运行
 if [[ $EUID -ne 0 ]]; then
    echo "此脚本需要root权限运行" 
    exit 1
+fi
+
+# 确保部署用户和用户组存在
+if ! getent group "$GROUP" >/dev/null 2>&1; then
+    echo "正在创建用户组 $GROUP ..."
+    groupadd "$GROUP"
+fi
+
+if ! id -u "$USER" >/dev/null 2>&1; then
+    echo "正在创建部署用户 $USER ..."
+    useradd -m -s /bin/bash "$USER"
+fi
+
+# 确保用户属于目标组
+if ! id -nG "$USER" | grep -qw "$GROUP"; then
+    usermod -a -G "$GROUP" "$USER"
 fi
 
 # 更新系统包
@@ -38,9 +58,13 @@ apt-get install -y \
     nginx \
     supervisor \
     git \
+    curl \
     build-essential \
     libssl-dev \
     libffi-dev
+
+systemctl enable --now nginx
+systemctl enable --now supervisor
 
 # 创建应用目录
 echo "正在创建应用目录..."
@@ -82,7 +106,10 @@ sudo -u "$USER" mkdir -p static/uploads
 echo "正在配置Nginx..."
 cp deployment/nginx/ohsteack.conf /etc/nginx/sites-available/
 ln -sf /etc/nginx/sites-available/ohsteack.conf /etc/nginx/sites-enabled/
-rm -f /etc/nginx/sites-enabled/default
+
+if [ -f /etc/nginx/sites-enabled/default ]; then
+    echo "保留默认站点配置 /etc/nginx/sites-enabled/default，如不需要请手动删除"
+fi
 
 echo "正在配置Supervisor..."
 cp deployment/supervisor/ohsteack.conf /etc/supervisor/conf.d/
@@ -97,7 +124,7 @@ FLASK_ENV=production
 SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(32))')
 
 # 数据库配置
-DATABASE_URL=mysql+pymysql://ohsteack:password@localhost/ohsteack?charset=utf8mb4
+DATABASE_URL=mysql+pymysql://$DB_USER:$DB_PASS@localhost/$DB_NAME?charset=utf8mb4
 
 # 邮件配置
 MAIL_SERVER=smtp.gmail.com
@@ -115,15 +142,15 @@ fi
 # 配置MySQL
 echo "正在配置MySQL..."
 mysql << EOF
-CREATE DATABASE IF NOT EXISTS ohsteack CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS 'ohsteack'@'localhost' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON ohsteack.* TO 'ohsteack'@'localhost';
+CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '$DB_USER'@'localhost';
 FLUSH PRIVILEGES;
 EOF
 
 # 运行数据库迁移
 echo "正在运行数据库迁移..."
-sudo -u "$USER" "$APP_DIR"/venv/bin/flask db upgrade
+sudo -u "$USER" FLASK_APP=run.py FLASK_ENV=production "$APP_DIR"/venv/bin/flask db upgrade
 
 # 收集静态文件（如果需要）
 # sudo -u $USER $APP_DIR/venv/bin/python manage.py collectstatic --noinput
@@ -139,15 +166,17 @@ nginx -t
 
 # 重启服务
 echo "正在重启服务..."
-systemctl restart nginx
+if ! systemctl reload nginx; then
+    systemctl restart nginx
+fi
 supervisorctl reread
 supervisorctl update
-supervisorctl restart ohsteack
+supervisorctl restart ohsteack || supervisorctl start ohsteack
 
 # 配置防火墙（如果使用ufw）
 if command -v ufw >/dev/null 2>&1; then
     echo "配置防火墙..."
-    ufw allow 'Nginx Full'
+    ufw allow 81/tcp
     ufw allow OpenSSH
 else
     echo "未检测到ufw，跳过防火墙配置。"
@@ -159,10 +188,10 @@ echo "✓ 部署完成！"
 echo "========================================="
 echo ""
 echo "重要提醒："
-echo "1. 编辑 /var/www/ohsteack/.env 配置数据库密码等信息"
+echo "1. 编辑 $APP_DIR/.env 确认数据库及其他敏感配置"
 echo "2. 修改 /etc/nginx/sites-available/ohsteack.conf 中的域名"
 echo "3. 配置SSL证书（推荐使用Let's Encrypt）"
-echo "4. 修改MySQL中ohsteack用户的密码"
+echo "4. 确认MySQL用户 $DB_USER 的密码与 .env 中保持一致并及时更新"
 echo ""
 echo "常用命令："
 echo "- 查看应用状态: supervisorctl status"

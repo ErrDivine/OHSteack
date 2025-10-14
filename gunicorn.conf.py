@@ -3,8 +3,8 @@
 import multiprocessing
 import os
 
-# 绑定地址和端口
-bind = "127.0.0.1:8000"
+# 绑定地址和端口（与 Nginx upstream 保持一致）
+bind = "127.0.0.1:8081"
 
 # 工作进程数
 workers = multiprocessing.cpu_count() * 2 + 1
