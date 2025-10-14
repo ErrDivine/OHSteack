@@ -1,20 +1,20 @@
 # Flask核心框架
-Flask==3.0.3
-Flask-SQLAlchemy==3.1.1
-Flask-Migrate==4.0.7
-Flask-Login==0.6.3
-Flask-WTF==1.2.1
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Login
+Flask-WTF
 
 # 数据库
-PyMySQL==1.1.1
-SQLAlchemy==2.0.31
+PyMySQL
+SQLAlchemy
 
 # 表单验证
-WTForms==3.1.2
-email-validator==2.2.0
+WTForms
+email-validator
 
 # 密码加密
-Flask-Bcrypt==1.0.1
+Flask-Bcrypt
 
 # Markdown支持
 markdown2
