@@ -66,19 +66,6 @@ apt-get install -y \
 systemctl enable --now nginx
 systemctl enable --now supervisor
 
-# 创建应用目录
-echo "正在创建应用目录..."
-mkdir -p "$APP_DIR"
-cd "$APP_DIR"
-
-# 克隆或更新代码
-if [ -d ".git" ]; then
-    echo "正在更新代码..."
-    git pull origin "$BRANCH"
-else
-    echo "正在克隆代码..."
-    git clone -b "$BRANCH" "$REPO_URL" .
-fi
 
 # 设置目录权限
 chown -R "$USER":"$GROUP" "$APP_DIR"
