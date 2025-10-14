@@ -17,26 +17,26 @@ email-validator==2.2.0
 Flask-Bcrypt==1.0.1
 
 # Markdown支持
-markdown2==2.5.0
+markdown2
 
 # 生产环境部署
-gunicorn==22.0.0
+gunicorn
 
 # 开发工具
-python-dotenv==1.0.1
-pytest==8.3.2
+python-dotenv
+pytest
 
 # 时间处理
-python-dateutil==2.9.0
+python-dateutil
 
 # 文件上传
-Flask-Uploads==0.2.1
+Flask-Uploads
 
 # API支持（如果需要）
-Flask-RESTful==0.3.10
+Flask-RESTful
 
 # 会话管理
-Flask-Session==0.8.0
+Flask-Session
 
 # 邮件支持（用于通知）
-Flask-Mail==0.10.0
+Flask-Mail
