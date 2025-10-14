@@ -12,6 +12,8 @@ class Config:
     # 数据库配置
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
+    WTF_CSRF_SECRET_KEY = SECRET_KEY
+    WTF_CSRF_TIME_LIMIT = None
     
     # 会话配置
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)

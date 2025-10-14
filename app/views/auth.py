@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, session
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.models import User, ResultIteration
@@ -42,7 +42,13 @@ def login():
             current_app.logger.warning('Login attempt failed for %s', form.login.data)
             flash('登录失败，请检查用户名/邮箱和密码。', 'error')
     elif request.method == 'POST':
-        current_app.logger.warning('Login validation failed: %s', form.errors)
+        current_app.logger.warning(
+            'Login validation failed: errors=%s session_csrf=%s form_csrf=%s cookies=%s',
+            form.errors,
+            session.get('csrf_token'),
+            form.csrf_token.data,
+            dict(request.cookies)
+        )
         flash('登录失败，请检查表单输入。', 'error')
     
     return render_template('auth/login.html', form=form)
@@ -84,7 +90,13 @@ def register():
         return redirect(url_for('main.dashboard'))
     
     if request.method == 'POST' and not is_valid:
-        current_app.logger.warning('Register validation failed: %s', form.errors)
+        current_app.logger.warning(
+            'Register validation failed: errors=%s session_csrf=%s form_csrf=%s cookies=%s',
+            form.errors,
+            session.get('csrf_token'),
+            form.csrf_token.data,
+            dict(request.cookies)
+        )
         flash('注册失败，请检查表单信息。', 'error')
     
     return render_template('auth/register.html', form=form)
