@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.models import User, ResultIteration
@@ -16,7 +16,8 @@ def login():
         return redirect(url_for('main.index'))
     
     form = LoginForm()
-    if form.validate_on_submit():
+    is_valid = form.validate_on_submit()
+    if is_valid:
         # 尝试通过邮箱或用户名查找用户
         user = User.query.filter(
             (User.email == form.login.data) | (User.username == form.login.data)
@@ -38,7 +39,11 @@ def login():
             flash(f'欢迎回来，{user.username}！', 'success')
             return redirect(next_page)
         else:
+            current_app.logger.warning('Login attempt failed for %s', form.login.data)
             flash('登录失败，请检查用户名/邮箱和密码。', 'error')
+    elif request.method == 'POST':
+        current_app.logger.warning('Login validation failed: %s', form.errors)
+        flash('登录失败，请检查表单输入。', 'error')
     
     return render_template('auth/login.html', form=form)
 
@@ -50,7 +55,8 @@ def register():
         return redirect(url_for('main.index'))
     
     form = RegisterForm()
-    if form.validate_on_submit():
+    is_valid = form.validate_on_submit()
+    if is_valid:
         # 检查用户名是否已存在
         if User.query.filter_by(username=form.username.data).first():
             flash('该用户名已被使用，请选择其他用户名。', 'error')
@@ -76,6 +82,10 @@ def register():
         login_user(user)
         flash('注册成功！欢迎加入OHSteack！', 'success')
         return redirect(url_for('main.dashboard'))
+    
+    if request.method == 'POST' and not is_valid:
+        current_app.logger.warning('Register validation failed: %s', form.errors)
+        flash('注册失败，请检查表单信息。', 'error')
     
     return render_template('auth/register.html', form=form)
 
