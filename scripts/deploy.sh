@@ -131,6 +131,9 @@ SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(32))')
 # 数据库配置
 DATABASE_URL=mysql+pymysql://$DB_USER:$DB_PASS@localhost/$DB_NAME?charset=utf8mb4
 
+# 会话配置（HTTP 部署需关闭 Secure）
+SESSION_COOKIE_SECURE=false
+
 # 邮件配置
 MAIL_SERVER=smtp.gmail.com
 MAIL_PORT=587
@@ -148,6 +151,11 @@ else
         sed -i "s#^DATABASE_URL=.*#DATABASE_URL=mysql+pymysql://$DB_USER:$DB_PASS@localhost/$DB_NAME?charset=utf8mb4#g" .env
     else
         echo "DATABASE_URL=mysql+pymysql://$DB_USER:$DB_PASS@localhost/$DB_NAME?charset=utf8mb4" >> .env
+    fi
+    if grep -q "^SESSION_COOKIE_SECURE=" .env; then
+        sed -i "s/^SESSION_COOKIE_SECURE=.*/SESSION_COOKIE_SECURE=false/" .env
+    else
+        echo "SESSION_COOKIE_SECURE=false" >> .env
     fi
     if ! grep -q "^FLASK_ENV=" .env; then
         echo "FLASK_ENV=production" >> .env

@@ -53,6 +53,13 @@ sudo -u "$USER" "$APP_DIR"/venv/bin/pip install -r requirements.txt
 echo "正在检查数据库迁移..."
 sudo -u "$USER" FLASK_APP=run.py FLASK_ENV=production "$APP_DIR"/venv/bin/flask db upgrade
 
+# 确保会话配置适用于HTTP
+if grep -q "^SESSION_COOKIE_SECURE=" "$APP_DIR/.env"; then
+    sed -i "s/^SESSION_COOKIE_SECURE=.*/SESSION_COOKIE_SECURE=false/" "$APP_DIR/.env"
+else
+    echo "SESSION_COOKIE_SECURE=false" >> "$APP_DIR/.env"
+fi
+
 # 收集静态文件（如果需要）
 # echo "正在收集静态文件..."
 # sudo -u $USER $APP_DIR/venv/bin/python manage.py collectstatic --noinput

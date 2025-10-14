@@ -15,7 +15,7 @@ class Config:
     
     # 会话配置
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
-    SESSION_COOKIE_SECURE = False  # 生产环境应设置为True（HTTPS）
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'false').lower() in ['true', '1', 'on', 'yes']
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     
@@ -66,7 +66,7 @@ class ProductionConfig(Config):
         'mysql+pymysql://root:password@localhost/ohsteack?charset=utf8mb4'
     
     # 生产环境安全设置
-    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'true').lower() in ['true', '1', 'on', 'yes']
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     
