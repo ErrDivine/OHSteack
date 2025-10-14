@@ -64,7 +64,11 @@ find . -type f -name "*.pyc" -delete 2>/dev/null || true
 
 # 重新加载应用
 echo "正在重新加载应用..."
-supervisorctl restart ohsteack || supervisorctl start ohsteack
+if supervisorctl status ohsteack >/dev/null 2>&1; then
+    supervisorctl restart ohsteack || supervisorctl start ohsteack
+else
+    supervisorctl start ohsteack
+fi
 
 # 重新加载Nginx（如果配置有更改）
 if sudo -u "$USER" git diff HEAD@{1} HEAD --name-only | grep -q "^deployment/nginx/"; then

@@ -68,6 +68,14 @@ systemctl enable --now nginx
 systemctl enable --now supervisor
 
 
+# 校验并进入应用目录（需提前同步代码）
+if [ ! -d "$APP_DIR" ]; then
+    echo "未找到应用目录 $APP_DIR ，请先将项目代码放置到该路径后再运行部署脚本。"
+    exit 1
+fi
+
+cd "$APP_DIR"
+
 # 设置目录权限
 chown -R "$USER":"$GROUP" "$APP_DIR"
 
@@ -181,7 +189,11 @@ if ! systemctl reload nginx; then
 fi
 supervisorctl reread
 supervisorctl update
-supervisorctl restart ohsteack || supervisorctl start ohsteack
+if supervisorctl status ohsteack >/dev/null 2>&1; then
+    supervisorctl restart ohsteack || supervisorctl start ohsteack
+else
+    supervisorctl start ohsteack
+fi
 
 # 配置防火墙（如果使用ufw）
 if command -v ufw >/dev/null 2>&1; then
