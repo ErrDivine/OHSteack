@@ -1,10 +1,7 @@
-// 主要JavaScript文件
+// 主要JavaScript文件，保持界面交互简洁可靠
 
-// DOM加载完成后执行
-document.addEventListener('DOMContentLoaded', function() {
-    // 初始化所有功能
+document.addEventListener('DOMContentLoaded', () => {
     initFlashMessages();
-    initDropdowns();
     initFormValidation();
     initFileUpload();
     initMarkdownPreview();
@@ -13,27 +10,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Flash消息自动消失
 function initFlashMessages() {
-    const flashMessages = document.querySelectorAll('.flash-message');
+    const flashMessages = document.querySelectorAll('.flash');
     flashMessages.forEach(message => {
-        // 5秒后自动消失
         setTimeout(() => {
-            message.style.animation = 'slideOut 0.3s ease-out';
+            message.style.opacity = '0';
+            message.style.transform = 'translateY(-6px)';
             setTimeout(() => message.remove(), 300);
         }, 5000);
-    });
-}
-
-// 下拉菜单处理
-function initDropdowns() {
-    // 点击外部关闭下拉菜单
-    document.addEventListener('click', function(e) {
-        const dropdowns = document.querySelectorAll('.nav-dropdown');
-        dropdowns.forEach(dropdown => {
-            if (!dropdown.parentElement.contains(e.target)) {
-                dropdown.style.opacity = '0';
-                dropdown.style.visibility = 'hidden';
-            }
-        });
     });
 }
 
@@ -134,7 +117,7 @@ function initMarkdownPreview() {
                     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
                     html = html.replace(/\n/g, '<br>');
-                    
+
                     preview.innerHTML = html || '<p class="text-muted">预览将在此显示...</p>';
                 }, 300);
             });
@@ -178,29 +161,8 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-// 添加动画类
-function animateElement(element, animationClass) {
-    element.classList.add(animationClass);
-    element.addEventListener('animationend', function() {
-        element.classList.remove(animationClass);
-    }, { once: true });
-}
-
-// 平滑滚动
-function smoothScroll(target) {
-    const element = document.querySelector(target);
-    if (element) {
-        element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-    }
-}
-
 // 导出函数供其他脚本使用
 window.OHSteack = {
-    animateElement,
-    smoothScroll,
     formatFileSize,
     getFileIcon
 };

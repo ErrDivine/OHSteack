@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}团队资源{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header d-flex justify-between align-center">
+        <div>
+            <h1>{{ team.name }} · 资源库</h1>
+            <p class="text-muted">浏览团队整理的学习资料与工具，支持分类和搜索。</p>
+        </div>
+        {% if team.has_member(current_user) %}
+        <a class="btn btn-primary" href="{{ url_for('resource.create', team_id=team.id) }}">
+            <i class="fas fa-plus"></i> 添加资源
+        </a>
+        {% endif %}
+    </div>
+
+    <form method="get" class="card filter-card">
+        <div class="card-body form-row align-center">
+            <div class="form-group">
+                <label class="form-label" for="category">分类</label>
+                <select id="category" name="category" class="form-control">
+                    <option value="">全部分类</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}" {% if category == current_category %}selected{% endif %}>{{ category or '未分类' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group flex-grow">
+                <label class="form-label" for="search">关键词</label>
+                <input id="search" name="search" type="search" value="{{ search_query or '' }}" class="form-control" placeholder="标题、描述或标签">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" type="submit">筛选</button>
+                <a class="btn btn-light" href="{{ url_for('resource.list_resources', team_id=team.id) }}">重置</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="card-title">资源列表</h2>
+        </div>
+        <div class="card-body">
+            {% if resources %}
+                <ul class="item-list">
+                    {% for resource in resources %}
+                    <li class="item-row">
+                        <div>
+                            <strong>
+                                <a href="{{ url_for('resource.detail', resource_id=resource.id) }}">
+                                    {% if resource.is_pinned %}<i class="fas fa-thumbtack text-warning"></i> {% endif %}
+                                    {{ resource.title }}
+                                </a>
+                            </strong>
+                            <div class="text-muted small">
+                                {{ resource.creator.username }} · {{ resource.created_at.strftime('%Y-%m-%d') if resource.created_at else '未知时间' }}
+                                · 类型：{{ resource.resource_type }}
+                                {% if resource.category %}· 分类：{{ resource.category }}{% endif %}
+                                · 浏览 {{ resource.view_count }}
+                            </div>
+                            {% set tags = resource.get_tags_list() %}
+                            {% if tags %}
+                            <div class="tag-list">
+                                {% for tag in tags %}
+                                <span class="badge badge-light">#{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="text-muted small text-right">
+                            最后更新 {{ resource.updated_at.strftime('%Y-%m-%d') if resource.updated_at else '未知' }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <p>暂无符合条件的资源。</p>
+                    {% if team.has_member(current_user) %}
+                    <a class="btn btn-primary btn-sm" href="{{ url_for('resource.create', team_id=team.id) }}">立即添加</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        {% if pagination.pages > 1 %}
+        <div class="card-footer pagination">
+            {% for page_num in pagination.iter_pages() %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                        <span class="page-link active">{{ page_num }}</span>
+                    {% else %}
+                        <a class="page-link" href="{{ url_for('resource.list_resources', team_id=team.id, page=page_num, category=current_category, search=search_query) }}">{{ page_num }}</a>
+                    {% endif %}
+                {% else %}
+                    <span class="page-link disabled">…</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

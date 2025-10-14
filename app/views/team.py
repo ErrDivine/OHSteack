@@ -66,30 +66,41 @@ def detail(team_id):
         flash('您没有权限查看此团队。', 'error')
         return redirect(url_for('team.list_teams'))
     
-    # 获取团队成员
-    members = team.get_active_members()
-    leader = team.get_leader()
-    
     # 获取团队统计
     stats = team.get_statistics()
-    
-    # 获取最近的资源和成果
-    recent_resources = (
-        team.resources.order_by(Resource.created_at.desc()).limit(5).all()
+
+    # 整理资源栈与成果堆
+    resource_stack = team.resources.order_by(Resource.created_at.desc()).all()
+    result_heap = team.results.order_by(Result.updated_at.desc()).all()
+
+    # 成员分工统计
+    member_allocations = []
+    active_memberships = team.members.filter_by(is_active=True).all()
+    for membership in active_memberships:
+        member = membership.user
+        member_allocations.append({
+            'user': member,
+            'role': membership.role,
+            'resource_count': member.created_resources.filter_by(team_id=team.id).count(),
+            'result_count': member.created_results.filter_by(team_id=team.id).count(),
+            'iteration_count': member.result_iterations.join(Result).filter(Result.team_id == team.id).count()
+        })
+
+    member_allocations.sort(key=lambda item: (
+        0 if item['role'] == 'leader' else 1,
+        item['user'].username.lower()
+    ))
+
+    return render_template(
+        'team/detail.html',
+        team=team,
+        stats=stats,
+        resource_stack=resource_stack,
+        result_heap=result_heap,
+        member_allocations=member_allocations,
+        is_member=team.has_member(current_user),
+        is_leader=current_user.is_team_leader(team)
     )
-    recent_results = (
-        team.results.order_by(Result.updated_at.desc()).limit(5).all()
-    )
-    
-    return render_template('team/detail.html', 
-                         team=team,
-                         members=members,
-                         leader=leader,
-                         stats=stats,
-                         recent_resources=recent_resources,
-                         recent_results=recent_results,
-                         is_member=team.has_member(current_user),
-                         is_leader=current_user.is_team_leader(team))
 
 
 @team_bp.route('/<int:team_id>/edit', methods=['GET', 'POST'])
