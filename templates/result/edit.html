@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}编辑成果{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header d-flex justify-between align-center">
+        <div>
+            <h1>编辑成果</h1>
+            <p class="text-muted">更新成果信息，并在内容变更时记录版本说明。</p>
+        </div>
+        <a class="btn btn-light" href="{{ url_for('result.detail', result_id=result.id) }}">返回详情</a>
+    </div>
+
+    <form method="post" novalidate class="card form-card">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class_="form-control") }}
+            {% for error in form.title.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class_="form-control", rows="4") }}
+            {% for error in form.description.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class_="form-control", rows="14", **{'data-markdown-preview': 'result-content-preview'}) }}
+            {% for error in form.content.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+            <div class="form-text">若内容有更新，请在下方填写变更说明。</div>
+            <div id="result-content-preview" class="markdown-preview text-muted mt-2">预览将在此显示...</div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.result_type.label(class="form-label") }}
+                {{ form.result_type(class_="form-control") }}
+                {% for error in form.result_type.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.status.label(class="form-label") }}
+                {{ form.status(class_="form-control") }}
+                {% for error in form.status.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.category.label(class="form-label") }}
+                {{ form.category(class_="form-control") }}
+                {% for error in form.category.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.repository_url.label(class="form-label") }}
+                {{ form.repository_url(class_="form-control", placeholder="https://github.com/...") }}
+                {% for error in form.repository_url.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.demo_url.label(class="form-label") }}
+                {{ form.demo_url(class_="form-control", placeholder="https://demo...") }}
+                {% for error in form.demo_url.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form.tags.label(class="form-label") }}
+            {{ form.tags(class_="form-control", placeholder="AI, 展示, V1.0") }}
+            <div class="form-text">使用逗号分隔多个标签。</div>
+            {% for error in form.tags.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            {{ form.changes_description.label(class="form-label") }}
+            {{ form.changes_description(class_="form-control", rows="3", placeholder="概述本次修改的重点...") }}
+            {% for error in form.changes_description.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-secondary" href="{{ url_for('result.detail', result_id=result.id) }}">取消</a>
+            {{ form.submit(class_="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

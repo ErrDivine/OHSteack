@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}编辑资源{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header d-flex justify-between align-center">
+        <div>
+            <h1>编辑资源</h1>
+            <p class="text-muted">更新资源内容，保持信息最新。</p>
+        </div>
+        <a class="btn btn-light" href="{{ url_for('resource.detail', resource_id=resource.id) }}">返回详情</a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" novalidate class="card form-card">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class_="form-control") }}
+            {% for error in form.title.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class_="form-control", rows="4") }}
+            {% for error in form.description.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class_="form-control", rows="12", **{'data-markdown-preview': 'resource-content-preview'}) }}
+            {% for error in form.content.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+            <div id="resource-content-preview" class="markdown-preview text-muted mt-2">预览将在此显示...</div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.resource_type.label(class="form-label") }}
+                {{ form.resource_type(class_="form-control") }}
+                {% for error in form.resource_type.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.url.label(class="form-label") }}
+                {{ form.url(class_="form-control", placeholder="https://...") }}
+                {% for error in form.url.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.category.label(class="form-label") }}
+                {{ form.category(class_="form-control") }}
+                {% for error in form.category.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form.tags.label(class="form-label") }}
+            {{ form.tags(class_="form-control", placeholder="算法, 数据集, 文档") }}
+            <div class="form-text">使用逗号分隔多个标签。</div>
+            {% for error in form.tags.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            {{ form.file.label(class="form-label") }}
+            {{ form.file(class_="form-control", **{'data-preview': 'resource-file-preview'}) }}
+            {% if resource.file_path %}
+            <div class="form-text">当前附件：
+                <a href="{{ url_for('resource.download', resource_id=resource.id) }}">下载现有文件</a>
+            </div>
+            {% endif %}
+            {% for error in form.file.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+            <div id="resource-file-preview" class="file-preview text-muted"></div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-secondary" href="{{ url_for('resource.detail', resource_id=resource.id) }}">取消</a>
+            {{ form.submit(class_="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

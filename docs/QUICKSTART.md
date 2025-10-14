@@ -29,6 +29,8 @@ flask run
 # 打开浏览器访问 http://localhost:5000
 ```
 
+运行过程中脚本会根据提示创建虚拟环境、安装依赖并生成 `.env` 文件，同时可选择是否初始化 MySQL 数据库（默认使用 SQLite）。
+
 ### 方式二：手动设置
 
 ```bash
@@ -43,26 +45,20 @@ source venv/bin/activate
 # 3. 安装依赖
 pip install -r requirements.txt
 
-# 4. 创建数据库
-mysql -u root -p << EOF
-CREATE DATABASE ohsteack_dev CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-EOF
+# 4. 配置环境变量
+nano .env  # 根据实际情况填写数据库信息
 
-# 5. 配置环境变量
-cp .env.example .env
-nano .env  # 编辑数据库连接信息
+# 5. 初始化数据库（默认已存在迁移，仅需升级）
+FLASK_APP=run.py flask db upgrade
 
-# 6. 初始化数据库
-flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
+# 6. 创建管理员账户（可选）
+FLASK_APP=run.py flask create-admin
 
-# 7. 创建管理员账户
-flask create-admin
-
-# 8. 启动服务器
+# 7. 启动服务器
 flask run
 ```
+
+> 提示：若选择MySQL，请在第5步前使用 `CREATE DATABASE ohsteack_dev ...` 创建数据库，并在 `.env` 中填入对应的连接串。
 
 ## 配置说明
 
@@ -75,7 +71,8 @@ FLASK_ENV=development
 SECRET_KEY=your-secret-key-here
 
 # 数据库配置
-DEV_DATABASE_URL=mysql+pymysql://root:password@localhost/ohsteack_dev?charset=utf8mb4
+DEV_DATABASE_URL=sqlite:///./local-dev.db
+TEST_DATABASE_URL=
 
 # 邮件配置（可选）
 MAIL_SERVER=smtp.gmail.com
@@ -85,27 +82,27 @@ MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-app-password
 ```
 
+> ℹ️ **使用MySQL？** 将 `DEV_DATABASE_URL` 和（或） `TEST_DATABASE_URL` 替换为 `mysql+pymysql://user:password@localhost/ohsteack_dev?charset=utf8mb4` 等连接串即可。
+
 ## 首次使用
 
 1. **注册账户**
    - 访问 http://localhost:5000
-   - 点击"注册"
-   - 填写用户信息
+   - 点击“注册”并完成表单
 
-2. **创建团队**
-   - 登录后点击"创建团队"
-   - 填写团队信息和竞赛信息
-   - 邀请成员加入
+2. **选择工作入口**
+   - 登录后在首页选择“用户资料”或“团队空间”
+   - 在“用户资料”中核对个人信息、设置密码、查看贡献统计
 
-3. **添加资源**
-   - 进入团队页面
-   - 点击"资源"标签
-   - 添加学习资料、参考文档等
+3. **创建或加入团队**
+   - 回到首页选择“团队空间”
+   - 如果没有团队，使用“创建团队”按钮录入赛事与简介
+   - 邀请成员或等待管理员添加你进入现有团队
 
-4. **创建成果**
-   - 点击"成果"标签
-   - 创建项目成果
-   - 记录迭代过程
+4. **维护资源栈与成果堆**
+   - 在团队空间顶部即可看到资源栈与成果堆的概览
+   - 点击“新增资源”整理资料，或通过资源列表页过滤/搜索
+   - 点击“新增成果”记录进展，并在成果详情页创建迭代
 
 ## 常用命令
 

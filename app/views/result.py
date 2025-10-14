@@ -1,7 +1,8 @@
-import os
 import json
-import markdown2
+import os
 from datetime import datetime
+
+import markdown2
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -108,8 +109,8 @@ def create(team_id):
         )
         
         # 处理标签
-        if form.tags.data:
-            result.set_tags(form.tags.data.split(','))
+        tags = form.tags.data.split(',') if form.tags.data else []
+        result.set_tags(tags)
         
         # 处理附件上传
         attachments = []
@@ -229,8 +230,8 @@ def edit(result_id):
         result.category = form.category.data
         
         # 处理标签
-        if form.tags.data:
-            result.set_tags(form.tags.data.split(','))
+        tags = form.tags.data.split(',') if form.tags.data else []
+        result.set_tags(tags)
         
         # 如果内容有变更，创建新的迭代
         if content_changed and form.changes_description.data:

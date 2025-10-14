@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}个人资料{% endblock %}
+
+{% block content %}
+<div class="profile-layout">
+    <section class="card profile-summary">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <img src="{{ current_user.avatar_url or url_for('static', filename='images/default-avatar.png') }}" alt="头像">
+            </div>
+            <div>
+                <h1>{{ current_user.full_name or current_user.username }}</h1>
+                <p class="text-muted">{{ current_user.email }}</p>
+            </div>
+        </div>
+
+        <ul class="profile-stats">
+            <li><span>团队</span><strong>{{ profile_stats.team_count }}</strong></li>
+            <li><span>资源</span><strong>{{ profile_stats.resource_count }}</strong></li>
+            <li><span>成果</span><strong>{{ profile_stats.result_count }}</strong></li>
+            <li><span>贡献迭代</span><strong>{{ profile_stats.iteration_count }}</strong></li>
+            <li><span>加入天数</span><strong>{{ profile_stats.days_since_join }}</strong></li>
+        </ul>
+
+        <div>
+            <h2>所在团队</h2>
+            {% if user_teams %}
+            <ul class="simple-list">
+                {% for team in user_teams %}
+                <li>
+                    <a href="{{ url_for('team.detail', team_id=team.id) }}">{{ team.name }}</a>
+                    <span class="text-muted small"> · {{ team.get_statistics().member_count }} 位成员</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted">尚未加入团队。</p>
+            {% endif %}
+        </div>
+
+        <div>
+            <h2>近期迭代</h2>
+            {% if latest_iterations %}
+            <ul class="simple-list">
+                {% for iteration in latest_iterations %}
+                <li>
+                    <strong>{{ iteration.result.title }}</strong>
+                    <span class="text-muted small"> · v{{ iteration.version }} · {{ iteration.created_at.strftime('%Y-%m-%d') if iteration.created_at else '' }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted">暂无迭代记录。</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="card form-card profile-form">
+        <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+
+            <h2>基本信息</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    {{ form.username.label(class="form-label") }}
+                    {{ form.username(class="form-control") }}
+                    {% for error in form.username.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.email.label(class="form-label") }}
+                    {{ form.email(class="form-control") }}
+                    {% for error in form.email.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    {{ form.full_name.label(class="form-label") }}
+                    {{ form.full_name(class="form-control") }}
+                    {% for error in form.full_name.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.bio.label(class="form-label") }}
+                    {{ form.bio(class="form-control", rows="4") }}
+                    {% for error in form.bio.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <h2>修改密码</h2>
+            <p class="text-muted">若需更新密码，请填写下列字段；如无需调整可留空。</p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    {{ form.current_password.label(class="form-label") }}
+                    {{ form.current_password(class="form-control", autocomplete="current-password") }}
+                    {% for error in form.current_password.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.new_password.label(class="form-label") }}
+                    {{ form.new_password(class="form-control", autocomplete="new-password") }}
+                    {% for error in form.new_password.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.new_password_confirm.label(class="form-label") }}
+                    {{ form.new_password_confirm(class="form-control", autocomplete="new-password") }}
+                    {% for error in form.new_password_confirm.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a class="btn btn-text" href="{{ url_for('main.index') }}">返回开始页</a>
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

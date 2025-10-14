@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}成果版本 v{{ iteration.version }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header d-flex justify-between align-center">
+        <div>
+            <h1>{{ result.title }} · v{{ iteration.version }}</h1>
+            <p class="text-muted">{{ iteration.creator.username }} 于 {{ iteration.created_at.strftime('%Y-%m-%d %H:%M') if iteration.created_at else '未知时间' }} 创建</p>
+        </div>
+        <a class="btn btn-light" href="{{ url_for('result.detail', result_id=result.id) }}">返回成果</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2 class="section-title">变更说明</h2>
+            <p>{{ iteration.changes_description }}</p>
+        </div>
+    </div>
+
+    {% if iteration.rendered_content %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="card-title">版本内容</h2>
+        </div>
+        <div class="card-body markdown-body">
+            {{ iteration.rendered_content|safe }}
+        </div>
+    </div>
+    {% elif iteration.content %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="card-title">版本内容</h2>
+        </div>
+        <div class="card-body">
+            <pre class="preformatted">{{ iteration.content }}</pre>
+        </div>
+    </div>
+    {% else %}
+    <div class="card mt-4">
+        <div class="card-body">
+            <div class="empty-state">
+                <p>该迭代未保存内容。</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

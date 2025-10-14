@@ -101,8 +101,8 @@ def create(team_id):
         )
         
         # 处理标签
-        if form.tags.data:
-            resource.set_tags(form.tags.data.split(','))
+        tags = form.tags.data.split(',') if form.tags.data else []
+        resource.set_tags(tags)
         
         # 处理文件上传
         if form.file.data:
@@ -178,8 +178,8 @@ def edit(resource_id):
         resource.category = form.category.data
         
         # 处理标签
-        if form.tags.data:
-            resource.set_tags(form.tags.data.split(','))
+        tags = form.tags.data.split(',') if form.tags.data else []
+        resource.set_tags(tags)
         
         # 处理新文件上传
         if form.file.data:

@@ -538,7 +538,7 @@ sudo -u www-data git log --oneline -5
 sudo -u www-data git reset --hard COMMIT_HASH
 
 # 2. 回滚数据库迁移
-sudo -u www-data venv/bin/flask db downgrade
+sudo -u www-data FLASK_APP=run.py ./venv/bin/flask db downgrade
 
 # 3. 重启应用
 sudo supervisorctl restart ohsteack
