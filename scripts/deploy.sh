@@ -59,6 +59,7 @@ apt-get install -y \
     supervisor \
     git \
     curl \
+    python3-cryptography \
     build-essential \
     libssl-dev \
     libffi-dev
@@ -75,7 +76,16 @@ if [[ -d "venv" ]]; then
     echo "✓ 检测到已存在的虚拟环境，跳过创建"
 else
     echo "正在创建虚拟环境..."
-    sudo -u "$USER" python3 -m venv venv
+    sudo -u "$USER" python3 -m venv --system-site-packages venv
+fi
+
+# 确保虚拟环境可访问系统包（例如 python3-cryptography）
+if [[ -f "venv/pyvenv.cfg" ]]; then
+    if grep -q "^include-system-site-packages = false" venv/pyvenv.cfg; then
+        sed -i "s/^include-system-site-packages = false/include-system-site-packages = true/" venv/pyvenv.cfg
+    elif ! grep -q "^include-system-site-packages" venv/pyvenv.cfg; then
+        echo "include-system-site-packages = true" >> venv/pyvenv.cfg
+    fi
 fi
 
 # 激活虚拟环境并安装依赖

@@ -8,6 +8,7 @@ Flask-WTF
 # 数据库
 PyMySQL
 SQLAlchemy
+cryptography
 
 # 表单验证
 WTForms
