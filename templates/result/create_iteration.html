@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}创建成果版本{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header d-flex justify-between align-center">
+        <div>
+            <h1>创建新版本</h1>
+            <p class="text-muted">为《{{ result.title }}》记录新的迭代内容。</p>
+        </div>
+        <a class="btn btn-light" href="{{ url_for('result.detail', result_id=result.id) }}">返回成果</a>
+    </div>
+
+    <form method="post" novalidate class="card form-card">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.changes_description.label(class="form-label") }}
+            {{ form.changes_description(class_="form-control", rows="3", placeholder="简要描述本次更新的亮点") }}
+            {% for error in form.changes_description.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class_="form-control", rows="14", **{'data-markdown-preview': 'iteration-content-preview'}) }}
+            {% for error in form.content.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+            <div id="iteration-content-preview" class="markdown-preview text-muted mt-2">预览将在此显示...</div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-secondary" href="{{ url_for('result.detail', result_id=result.id) }}">取消</a>
+            {{ form.submit(class_="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

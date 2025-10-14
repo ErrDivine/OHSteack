@@ -67,11 +67,13 @@ class Result(db.Model):
         )
         
         db.session.add(iteration)
+        db.session.flush()
+
         self.current_iteration_id = iteration.id
         self.version = new_version
         if content:
             self.content = content
-        
+
         return iteration
     
     def get_current_iteration(self):

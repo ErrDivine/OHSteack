@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}团队成果{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header d-flex justify-between align-center">
+        <div>
+            <h1>{{ team.name }} · 成果追踪</h1>
+            <p class="text-muted">查看团队的阶段成果与版本演进，支持状态、分类与搜索。</p>
+        </div>
+        {% if team.has_member(current_user) %}
+        <a class="btn btn-primary" href="{{ url_for('result.create', team_id=team.id) }}">
+            <i class="fas fa-plus"></i> 新建成果
+        </a>
+        {% endif %}
+    </div>
+
+    <form method="get" class="card filter-card">
+        <div class="card-body form-row align-center">
+            <div class="form-group">
+                <label class="form-label" for="status">状态</label>
+                <select id="status" name="status" class="form-control">
+                    <option value="">全部状态</option>
+                    {% for status in statuses %}
+                        <option value="{{ status }}" {% if status == current_status %}selected{% endif %}>{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="category">分类</label>
+                <select id="category" name="category" class="form-control">
+                    <option value="">全部分类</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}" {% if category == current_category %}selected{% endif %}>{{ category or '未分类' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group flex-grow">
+                <label class="form-label" for="search">关键词</label>
+                <input id="search" name="search" type="search" value="{{ search_query or '' }}" class="form-control" placeholder="标题、描述或标签">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" type="submit">筛选</button>
+                <a class="btn btn-light" href="{{ url_for('result.list_results', team_id=team.id) }}">重置</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="card-title">成果列表</h2>
+        </div>
+        <div class="card-body">
+            {% if results %}
+                <ul class="item-list">
+                    {% for result in results %}
+                    <li class="item-row">
+                        <div>
+                            <strong>
+                                <a href="{{ url_for('result.detail', result_id=result.id) }}">{{ result.title }}</a>
+                            </strong>
+                            <div class="text-muted small">
+                                {{ result.creator.username }} · {{ result.updated_at.strftime('%Y-%m-%d') if result.updated_at else '未知时间' }}
+                                · 状态：{{ result.status }} · 版本 v{{ result.version }}
+                                {% if result.category %}· 分类：{{ result.category }}{% endif %}
+                            </div>
+                            {% set tags = result.get_tags_list() %}
+                            {% if tags %}
+                            <div class="tag-list">
+                                {% for tag in tags %}
+                                <span class="badge badge-light">#{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="text-muted small text-right">
+                            浏览 {{ result.view_count }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <p>暂无符合条件的成果。</p>
+                    {% if team.has_member(current_user) %}
+                    <a class="btn btn-primary btn-sm" href="{{ url_for('result.create', team_id=team.id) }}">创建首个成果</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        {% if pagination.pages > 1 %}
+        <div class="card-footer pagination">
+            {% for page_num in pagination.iter_pages() %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                        <span class="page-link active">{{ page_num }}</span>
+                    {% else %}
+                        <a class="page-link" href="{{ url_for('result.list_results', team_id=team.id, page=page_num, status=current_status, category=current_category, search=search_query) }}">{{ page_num }}</a>
+                    {% endif %}
+                {% else %}
+                    <span class="page-link disabled">…</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

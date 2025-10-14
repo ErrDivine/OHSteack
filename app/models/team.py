@@ -28,11 +28,20 @@ class Team(db.Model):
     
     def add_member(self, user, role='member'):
         """添加团队成员"""
-        if not self.has_member(user):
-            member = TeamMember(team=self, user=user, role=role)
-            db.session.add(member)
+        membership = self.members.filter_by(user_id=user.id).first()
+
+        if membership:
+            if membership.is_active:
+                return False
+
+            membership.is_active = True
+            membership.role = role
+            membership.joined_at = datetime.utcnow()
             return True
-        return False
+
+        member = TeamMember(team=self, user=user, role=role)
+        db.session.add(member)
+        return True
     
     def remove_member(self, user):
         """移除团队成员"""

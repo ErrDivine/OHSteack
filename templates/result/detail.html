@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}成果详情{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header d-flex justify-between align-center">
+        <div>
+            <h1>{{ result.title }}</h1>
+            <p class="text-muted">
+                团队：{{ result.team.name }} · 状态：{{ result.status }} · 版本 v{{ result.version }}
+            </p>
+        </div>
+        <div class="actions">
+            {% if can_edit %}
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('result.edit', result_id=result.id) }}">编辑</a>
+            <a class="btn btn-light btn-sm" href="{{ url_for('result.create_iteration', result_id=result.id) }}">新版本</a>
+            <form method="post" action="{{ url_for('result.delete', result_id=result.id) }}" class="d-inline">
+                {{ csrf_token() if csrf_token is defined }}
+                <button type="submit" class="btn btn-danger btn-sm" data-confirm-delete="确定要删除该成果吗？">删除</button>
+            </form>
+            {% endif %}
+            {% if current_user.is_authenticated and current_user.is_team_leader(result.team) and result.status != 'final' %}
+            <form method="post" action="{{ url_for('result.submit', result_id=result.id) }}" class="d-inline">
+                {{ csrf_token() if csrf_token is defined }}
+                <button type="submit" class="btn btn-primary btn-sm">提交为最终版</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small mb-2">
+                    创建者：{{ result.creator.full_name or result.creator.username }} · 创建于 {{ result.created_at.strftime('%Y-%m-%d %H:%M') if result.created_at else '未知' }}
+                </div>
+                <div class="text-muted small mb-3">
+                    最近更新：{{ result.updated_at.strftime('%Y-%m-%d %H:%M') if result.updated_at else '未知' }} · 浏览 {{ result.view_count }}
+                    {% if result.submitted_at %}· 最终提交于 {{ result.submitted_at.strftime('%Y-%m-%d %H:%M') }}{% endif %}
+                </div>
+                {% if result.description %}
+                <p>{{ result.description }}</p>
+                {% endif %}
+                {% set tags = result.get_tags_list() %}
+                {% if tags %}
+                <div class="tag-list mb-3">
+                    {% for tag in tags %}
+                    <span class="badge badge-light">#{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <ul class="meta-list">
+                    <li>成果类型：{{ result.result_type }}</li>
+                    {% if result.category %}<li>分类：{{ result.category }}</li>{% endif %}
+                    {% if result.repository_url %}
+                    <li>代码仓库：<a href="{{ result.repository_url }}" target="_blank" rel="noopener">{{ result.repository_url }}</a></li>
+                    {% endif %}
+                    {% if result.demo_url %}
+                    <li>演示链接：<a href="{{ result.demo_url }}" target="_blank" rel="noopener">{{ result.demo_url }}</a></li>
+                    {% endif %}
+                </ul>
+                {% if attachments %}
+                <div class="mt-3">
+                    <h3 class="section-title">附件</h3>
+                    <ul class="item-list">
+                        {% for attachment in attachments %}
+                        <li class="item-row">
+                            <div>
+                                <strong>{{ attachment['filename'] }}</strong>
+                                <div class="text-muted small">大小：{{ attachment['size'] }} 字节</div>
+                            </div>
+                            <div>
+                                <a class="btn btn-light btn-sm" href="{{ url_for('static', filename='uploads/' + attachment['path']) }}" download>
+                                    <i class="fas fa-download"></i> 下载
+                                </a>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if result.rendered_content %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="card-title">详细内容</h2>
+        </div>
+        <div class="card-body markdown-body">
+            {{ result.rendered_content|safe }}
+        </div>
+    </div>
+    {% elif result.content %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="card-title">详细内容</h2>
+        </div>
+        <div class="card-body">
+            <pre class="preformatted">{{ result.content }}</pre>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mt-4">
+        <div class="card-header d-flex justify-between align-center">
+            <h2 class="card-title">迭代历史</h2>
+            {% if can_edit %}
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('result.create_iteration', result_id=result.id) }}">创建新版本</a>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% if iterations %}
+                <ul class="item-list">
+                    {% for iteration in iterations %}
+                    <li class="item-row">
+                        <div>
+                            <strong>v{{ iteration.version }}</strong>
+                            <div class="text-muted small">
+                                {{ iteration.creator.username }} · {{ iteration.created_at.strftime('%Y-%m-%d %H:%M') if iteration.created_at else '未知' }}
+                            </div>
+                            <p class="small mt-1">{{ iteration.changes_description }}</p>
+                        </div>
+                        <div>
+                            <a class="btn btn-light btn-sm" href="{{ url_for('result.view_iteration', result_id=result.id, iteration_id=iteration.id) }}">查看</a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <p>暂无迭代记录。</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

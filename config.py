@@ -22,7 +22,10 @@ class Config:
     # 文件上传配置
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
     UPLOAD_FOLDER = os.path.join(basedir, 'static', 'uploads')
-    ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'md'}
+    ALLOWED_EXTENSIONS = {
+        'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'xls', 'xlsx',
+        'ppt', 'pptx', 'md', 'zip', 'rar', '7z', 'tar', 'gz'
+    }
     
     # 邮件配置
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
@@ -52,7 +55,7 @@ class TestingConfig(Config):
     """测试环境配置"""
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-        'mysql+pymysql://root:password@localhost/ohsteack_test?charset=utf8mb4'
+        'sqlite:///' + os.path.join(basedir, 'test.db')
     WTF_CSRF_ENABLED = False
 
 

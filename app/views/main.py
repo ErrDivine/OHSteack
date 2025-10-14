@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import current_user
-from app.models import Team, Resource, Result
+from app.models import Team
 
 main_bp = Blueprint('main', __name__)
 
@@ -11,20 +11,20 @@ def index():
     if current_user.is_authenticated:
         # 获取用户的团队
         user_teams = current_user.get_teams()
-        
-        # 获取最新的资源和成果
-        recent_resources = Resource.query.join(Team).filter(
-            Team.id.in_([t.id for t in user_teams])
-        ).order_by(Resource.created_at.desc()).limit(5).all()
-        
-        recent_results = Result.query.join(Team).filter(
-            Team.id.in_([t.id for t in user_teams])
-        ).order_by(Result.updated_at.desc()).limit(5).all()
-        
-        return render_template('index.html', 
-                             user_teams=user_teams,
-                             recent_resources=recent_resources,
-                             recent_results=recent_results)
+
+        # 汇总用户的核心统计数据
+        profile_stats = {
+            'team_count': len(user_teams),
+            'resource_count': current_user.created_resources.count(),
+            'result_count': current_user.created_results.count(),
+            'iteration_count': current_user.result_iterations.count()
+        }
+
+        return render_template(
+            'index.html',
+            user_teams=user_teams,
+            profile_stats=profile_stats
+        )
     else:
         # 展示公开信息
         active_teams = Team.query.filter_by(status='active').order_by(Team.created_at.desc()).limit(6).all()

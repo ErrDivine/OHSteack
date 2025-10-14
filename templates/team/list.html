@@ -1,72 +1,60 @@
 {% extends "base.html" %}
 
-{% block title %}我的团队{% endblock %}
+{% block title %}团队空间{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="page-header">
-        <h1>团队概览</h1>
-        <p class="text-muted">查看你所属的团队，以及当前活跃的其他团队。</p>
-    </div>
-
-    <div class="card">
-        <div class="card-header d-flex justify-between align-center">
-            <h2 class="card-title">我的团队</h2>
-            <a class="btn btn-primary btn-sm" href="{{ url_for('team.create') }}">创建团队</a>
-        </div>
-        <div class="card-body">
-            {% if user_teams %}
-                <ul class="item-list">
-                    {% for team in user_teams %}
-                    <li class="item-row">
-                        <div>
-                            <strong><a href="{{ url_for('team.detail', team_id=team.id) }}">{{ team.name }}</a></strong>
-                            <div class="text-muted small">
-                                {{ team.competition_name or '未指定竞赛' }} · 状态：{{ team.status }}
-                            </div>
-                        </div>
-                        <div class="text-muted small">
-                            成员 {{ team.members.filter_by(is_active=True).count() }} · 创建于 {{ team.created_at.strftime('%Y-%m-%d') if team.created_at else '未知' }}
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <div class="empty-state">
-                    <p>你尚未加入任何团队。</p>
-                    <a class="btn btn-primary btn-sm" href="{{ url_for('team.create') }}">立即创建</a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="card mt-4">
-        <div class="card-header">
-            <h2 class="card-title">其他活跃团队</h2>
-        </div>
-        <div class="card-body">
-            {% if other_teams %}
-                <ul class="item-list">
-                    {% for team in other_teams %}
-                    <li class="item-row">
-                        <div>
-                            <strong>{{ team.name }}</strong>
-                            <div class="text-muted small">
-                                {{ team.competition_name or '未指定竞赛' }}
-                            </div>
-                        </div>
-                        <div class="text-muted small">
-                            成员 {{ team.members.filter_by(is_active=True).count() }}
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <div class="empty-state">
-                    <p>暂无其他活跃团队。</p>
-                </div>
-            {% endif %}
-        </div>
-    </div>
+<div class="page-header">
+    <h1>我的团队空间</h1>
+    <p>选择一个团队，进入其资源栈与成果堆。</p>
 </div>
+
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">加入的团队</h2>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('team.create') }}">创建新团队</a>
+    </div>
+    <div class="card-body">
+        {% if user_teams %}
+        <div class="list-stack">
+            {% for team in user_teams %}
+            <div class="list-item">
+                <div>
+                    <strong>{{ team.name }}</strong>
+                    <div class="text-muted small">{{ team.get_statistics().member_count }} 位成员 · {{ team.status }}</div>
+                </div>
+                <a class="btn btn-secondary btn-sm" href="{{ url_for('team.detail', team_id=team.id) }}">进入</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span>尚未加入团队。</span>
+            <a class="btn btn-primary btn-sm" href="{{ url_for('team.create') }}">立即创建</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="card" style="margin-top:24px;">
+    <div class="card-header">
+        <h2 class="card-title">发现中的团队</h2>
+    </div>
+    <div class="card-body">
+        {% if other_teams %}
+        <div class="list-stack">
+            {% for team in other_teams %}
+            <div class="list-item">
+                <div>
+                    <strong>{{ team.name }}</strong>
+                    <div class="text-muted small">{{ team.competition_name or '未指定竞赛' }}</div>
+                </div>
+                <span class="text-muted small">{{ team.members.filter_by(is_active=True).count() }} 位成员</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">暂无其他活跃团队。</p>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
-from app.models import User
+from app.models import User, ResultIteration
 from app.forms.auth import LoginForm, RegisterForm, ProfileForm
 
 auth_bp = Blueprint('auth', __name__)
@@ -92,6 +94,17 @@ def logout():
 def profile():
     """用户个人资料"""
     form = ProfileForm(obj=current_user)
+
+    user_teams = current_user.get_teams()
+    profile_stats = {
+        'team_count': len(user_teams),
+        'resource_count': current_user.created_resources.count(),
+        'result_count': current_user.created_results.count(),
+        'iteration_count': current_user.result_iterations.count(),
+        'days_since_join': (datetime.utcnow() - current_user.created_at).days if current_user.created_at else 0
+    }
+
+    latest_iterations = current_user.result_iterations.order_by(ResultIteration.created_at.desc()).limit(5).all()
     
     if form.validate_on_submit():
         # 检查用户名是否被其他用户使用
@@ -124,4 +137,10 @@ def profile():
         flash('个人资料更新成功！', 'success')
         return redirect(url_for('auth.profile'))
     
-    return render_template('auth/profile.html', form=form)
+    return render_template(
+        'auth/profile.html',
+        form=form,
+        profile_stats=profile_stats,
+        user_teams=user_teams,
+        latest_iterations=latest_iterations
+    )

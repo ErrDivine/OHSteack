@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}资源详情{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header d-flex justify-between align-center">
+        <div>
+            <h1>{{ resource.title }}</h1>
+            <p class="text-muted">
+                {{ resource.team.name }} · {{ resource.resource_type }}
+                {% if resource.category %}· 分类：{{ resource.category }}{% endif %}
+            </p>
+        </div>
+        <div class="actions">
+            {% if resource.is_editable_by(current_user) %}
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('resource.edit', resource_id=resource.id) }}">编辑</a>
+            <form method="post" action="{{ url_for('resource.delete', resource_id=resource.id) }}" class="d-inline">
+                {{ csrf_token() if csrf_token is defined }}
+                <button type="submit" class="btn btn-danger btn-sm" data-confirm-delete="确定要删除该资源吗？">删除</button>
+            </form>
+            {% endif %}
+            {% if current_user.is_authenticated and current_user.is_team_leader(resource.team) %}
+            <form method="post" action="{{ url_for('resource.pin', resource_id=resource.id) }}" class="d-inline">
+                {{ csrf_token() if csrf_token is defined }}
+                <button type="submit" class="btn btn-light btn-sm">
+                    {% if resource.is_pinned %}<i class="fas fa-thumbtack"></i> 取消置顶{% else %}<i class="fas fa-thumbtack"></i> 置顶{% endif %}
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-muted small mb-2">
+                    创建者：{{ resource.creator.full_name or resource.creator.username }} · 创建于 {{ resource.created_at.strftime('%Y-%m-%d %H:%M') if resource.created_at else '未知' }}
+                </div>
+                <div class="text-muted small mb-3">
+                    最近更新：{{ resource.updated_at.strftime('%Y-%m-%d %H:%M') if resource.updated_at else '未知' }} · 浏览 {{ resource.view_count }}
+                </div>
+                {% if resource.description %}
+                <p>{{ resource.description }}</p>
+                {% endif %}
+                {% set tags = resource.get_tags_list() %}
+                {% if tags %}
+                <div class="tag-list">
+                    {% for tag in tags %}
+                    <span class="badge badge-light">#{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if resource.url %}
+                <div class="mt-3">
+                    <a class="btn btn-light btn-sm" href="{{ resource.url }}" target="_blank" rel="noopener">
+                        <i class="fas fa-link"></i> 打开外部链接
+                    </a>
+                </div>
+                {% endif %}
+                {% if resource.file_path %}
+                <div class="mt-3">
+                    <a class="btn btn-light btn-sm" href="{{ url_for('resource.download', resource_id=resource.id) }}">
+                        <i class="fas fa-download"></i> 下载附件
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if resource.rendered_content %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="card-title">详细内容</h2>
+        </div>
+        <div class="card-body markdown-body">
+            {{ resource.rendered_content|safe }}
+        </div>
+    </div>
+    {% elif resource.content %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="card-title">详细内容</h2>
+        </div>
+        <div class="card-body">
+            <pre class="preformatted">{{ resource.content }}</pre>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

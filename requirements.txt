@@ -24,6 +24,7 @@ gunicorn==22.0.0
 
 # 开发工具
 python-dotenv==1.0.1
+pytest==8.3.2
 
 # 时间处理
 python-dateutil==2.9.0
