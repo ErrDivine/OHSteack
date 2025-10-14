@@ -120,6 +120,7 @@ echo "正在配置Supervisor..."
 cp deployment/supervisor/ohsteack.conf /etc/supervisor/conf.d/
 
 # 创建或更新生产环境配置
+rm .env
 if [ ! -f .env ]; then
     echo "正在创建生产环境配置..."
     cat > .env << EOL

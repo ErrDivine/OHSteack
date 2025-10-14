@@ -68,7 +68,7 @@ class ProductionConfig(Config):
         'mysql+pymysql://root:password@localhost/ohsteack?charset=utf8mb4'
     
     # 生产环境安全设置
-    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'true').lower() in ['true', '1', 'on', 'yes']
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'false').lower() in ['true', '1', 'on', 'yes']
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     
