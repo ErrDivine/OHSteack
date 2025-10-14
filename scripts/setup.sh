@@ -1,7 +1,7 @@
 #!/bin/bash
 # OHSteack 初始化设置脚本
 
-set -e  # 遇到错误立即退出
+set -euo pipefail  # 遇到错误立即退出
 
 echo "========================================="
 echo "OHSteack 初始化设置脚本"
@@ -25,8 +25,12 @@ fi
 echo "✓ Python版本检查通过: $PYTHON_VERSION"
 
 # 创建虚拟环境
-echo "正在创建虚拟环境..."
-python3 -m venv venv
+if [[ -d "venv" ]]; then
+    echo "✓ 检测到已存在的虚拟环境，跳过创建"
+else
+    echo "正在创建虚拟环境..."
+    python3 -m venv venv
+fi
 
 # 激活虚拟环境
 source venv/bin/activate
@@ -46,18 +50,21 @@ mkdir -p instance
 mkdir -p static/uploads
 
 # 创建.env文件（如果不存在）
-if [ ! -f .env ]; then
+if [[ ! -f .env ]]; then
     echo "正在创建.env文件..."
-    cat > .env << EOL
+    cat > .env <<EOL
 # Flask配置
 FLASK_APP=run.py
 FLASK_ENV=development
 SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(32))')
 
 # 数据库配置
-DEV_DATABASE_URL=mysql+pymysql://root:password@localhost/ohsteack_dev?charset=utf8mb4
-TEST_DATABASE_URL=mysql+pymysql://root:password@localhost/ohsteack_test?charset=utf8mb4
-DATABASE_URL=mysql+pymysql://root:password@localhost/ohsteack?charset=utf8mb4
+# 开发默认使用SQLite，如需MySQL请替换为 mysql+pymysql://user:password@localhost/ohsteack_dev?charset=utf8mb4
+DEV_DATABASE_URL=sqlite:///./local-dev.db
+# 测试环境默认使用SQLite，如需覆盖请设置 TEST_DATABASE_URL
+TEST_DATABASE_URL=
+# 生产环境连接串（部署时修改为实际MySQL配置）
+DATABASE_URL=mysql+pymysql://ohsteack:password@localhost/ohsteack?charset=utf8mb4
 
 # 邮件配置（可选）
 MAIL_SERVER=smtp.gmail.com
@@ -72,43 +79,35 @@ else
     echo "✓ .env文件已存在"
 fi
 
-# 检查MySQL连接
-echo "检查数据库连接..."
-read -p "请输入MySQL root密码（用于创建数据库）: " -s MYSQL_ROOT_PASSWORD
-echo
-
-# 创建数据库
-echo "正在创建数据库..."
-mysql -u root -p$MYSQL_ROOT_PASSWORD << EOF
+# 可选的MySQL初始化
+if command -v mysql >/dev/null 2>&1; then
+    read -r -p "是否为MySQL创建开发/测试数据库？(y/n) " INIT_MYSQL
+    if [[ "${INIT_MYSQL}" == "y" ]]; then
+        read -r -s -p "请输入MySQL root密码（用于创建数据库）: " MYSQL_ROOT_PASSWORD
+        echo
+        echo "正在创建数据库..."
+        if mysql -u root -p"$MYSQL_ROOT_PASSWORD" <<'SQL'
 CREATE DATABASE IF NOT EXISTS ohsteack_dev CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE IF NOT EXISTS ohsteack_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE IF NOT EXISTS ohsteack CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- 创建应用用户（可选）
--- CREATE USER IF NOT EXISTS 'ohsteack'@'localhost' IDENTIFIED BY 'your_password';
--- GRANT ALL PRIVILEGES ON ohsteack_dev.* TO 'ohsteack'@'localhost';
--- GRANT ALL PRIVILEGES ON ohsteack_test.* TO 'ohsteack'@'localhost';
--- GRANT ALL PRIVILEGES ON ohsteack.* TO 'ohsteack'@'localhost';
--- FLUSH PRIVILEGES;
-EOF
-
-if [ $? -eq 0 ]; then
-    echo "✓ 数据库创建成功"
+SQL
+        then
+            echo "✓ MySQL 数据库创建完成"
+        else
+            echo "✗ MySQL 数据库创建失败，请检查root密码或权限"
+            exit 1
+        fi
+    else
+        echo "跳过MySQL数据库初始化。"
+    fi
 else
-    echo "✗ 数据库创建失败，请检查MySQL连接"
-    exit 1
+    echo "未检测到mysql命令，跳过MySQL数据库初始化。"
 fi
-
-# 初始化数据库迁移
-echo "正在初始化数据库迁移..."
-flask db init
-
-# 创建初始迁移
-echo "正在创建初始数据库迁移..."
-flask db migrate -m "Initial migration"
 
 # 应用迁移
 echo "正在应用数据库迁移..."
+export FLASK_APP=run.py
+export FLASK_ENV=development
 flask db upgrade
 
 # 创建管理员账户
@@ -130,4 +129,4 @@ echo "2. 运行 'source venv/bin/activate' 激活虚拟环境"
 echo "3. 运行 'flask run' 启动开发服务器"
 echo "4. 访问 http://localhost:5000"
 echo ""
-echo "生产环境部署请参考 deployment/README.md"
+echo "生产环境部署请参考 docs/DEPLOYMENT.md"

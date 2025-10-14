@@ -1,7 +1,7 @@
 #!/bin/bash
 # OHSteack 生产环境更新脚本
 
-set -e  # 遇到错误立即退出
+set -euo pipefail  # 遇到错误立即退出
 
 echo "========================================="
 echo "OHSteack 生产环境更新脚本"
@@ -20,12 +20,12 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-cd $APP_DIR
+cd "$APP_DIR"
 
 # 创建备份
 echo "正在创建备份..."
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-mkdir -p $BACKUP_DIR
+mkdir -p "$BACKUP_DIR"
 tar -czf "$BACKUP_DIR/backup_$TIMESTAMP.tar.gz" \
     --exclude='venv' \
     --exclude='logs' \
@@ -42,16 +42,16 @@ echo "✓ 备份已创建: $BACKUP_DIR/backup_$TIMESTAMP.tar.gz"
 
 # 拉取最新代码
 echo "正在更新代码..."
-sudo -u $USER git fetch origin
-sudo -u $USER git pull origin $BRANCH
+sudo -u "$USER" git fetch origin
+sudo -u "$USER" git pull origin "$BRANCH"
 
 # 更新依赖
 echo "正在更新Python依赖..."
-sudo -u $USER $APP_DIR/venv/bin/pip install -r requirements.txt
+sudo -u "$USER" "$APP_DIR"/venv/bin/pip install -r requirements.txt
 
 # 运行数据库迁移
 echo "正在检查数据库迁移..."
-sudo -u $USER $APP_DIR/venv/bin/flask db upgrade
+sudo -u "$USER" "$APP_DIR"/venv/bin/flask db upgrade
 
 # 收集静态文件（如果需要）
 # echo "正在收集静态文件..."
@@ -64,10 +64,10 @@ find . -type f -name "*.pyc" -delete 2>/dev/null || true
 
 # 重新加载应用
 echo "正在重新加载应用..."
-supervisorctl restart ohsteack_group:*
+supervisorctl restart ohsteack
 
 # 重新加载Nginx（如果配置有更改）
-if git diff HEAD@{1} HEAD --name-only | grep -q "nginx"; then
+if git diff HEAD@{1} HEAD --name-only | grep -q "^deployment/nginx/"; then
     echo "检测到Nginx配置更改，正在重新加载..."
     cp deployment/nginx/ohsteack.conf /etc/nginx/sites-available/
     nginx -t && systemctl reload nginx

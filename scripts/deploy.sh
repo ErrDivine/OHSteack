@@ -1,7 +1,7 @@
 #!/bin/bash
 # OHSteack 生产环境部署脚本
 
-set -e  # 遇到错误立即退出
+set -euo pipefail  # 遇到错误立即退出
 
 echo "========================================="
 echo "OHSteack 生产环境部署脚本"
@@ -44,35 +44,39 @@ apt-get install -y \
 
 # 创建应用目录
 echo "正在创建应用目录..."
-mkdir -p $APP_DIR
-cd $APP_DIR
+mkdir -p "$APP_DIR"
+cd "$APP_DIR"
 
 # 克隆或更新代码
 if [ -d ".git" ]; then
     echo "正在更新代码..."
-    git pull origin $BRANCH
+    git pull origin "$BRANCH"
 else
     echo "正在克隆代码..."
-    git clone -b $BRANCH $REPO_URL .
+    git clone -b "$BRANCH" "$REPO_URL" .
 fi
 
 # 设置目录权限
-chown -R $USER:$GROUP $APP_DIR
+chown -R "$USER":"$GROUP" "$APP_DIR"
 
 # 创建虚拟环境
-echo "正在创建虚拟环境..."
-sudo -u $USER python3 -m venv venv
+if [[ -d "venv" ]]; then
+    echo "✓ 检测到已存在的虚拟环境，跳过创建"
+else
+    echo "正在创建虚拟环境..."
+    sudo -u "$USER" python3 -m venv venv
+fi
 
 # 激活虚拟环境并安装依赖
 echo "正在安装Python依赖..."
-sudo -u $USER $APP_DIR/venv/bin/pip install --upgrade pip
-sudo -u $USER $APP_DIR/venv/bin/pip install -r requirements.txt
+sudo -u "$USER" "$APP_DIR"/venv/bin/pip install --upgrade pip
+sudo -u "$USER" "$APP_DIR"/venv/bin/pip install -r requirements.txt
 
 # 创建必要的目录
 echo "正在创建必要的目录..."
-sudo -u $USER mkdir -p logs
-sudo -u $USER mkdir -p instance
-sudo -u $USER mkdir -p static/uploads
+sudo -u "$USER" mkdir -p logs
+sudo -u "$USER" mkdir -p instance
+sudo -u "$USER" mkdir -p static/uploads
 
 # 复制配置文件
 echo "正在配置Nginx..."
@@ -103,7 +107,7 @@ MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_DEFAULT_SENDER=noreply@ohsteack.com
 EOL
-    chown $USER:$GROUP .env
+    chown "$USER":"$GROUP" .env
     chmod 600 .env
     echo "✓ 请编辑 .env 文件配置数据库密码等信息"
 fi
@@ -119,7 +123,7 @@ EOF
 
 # 运行数据库迁移
 echo "正在运行数据库迁移..."
-sudo -u $USER $APP_DIR/venv/bin/flask db upgrade
+sudo -u "$USER" "$APP_DIR"/venv/bin/flask db upgrade
 
 # 收集静态文件（如果需要）
 # sudo -u $USER $APP_DIR/venv/bin/python manage.py collectstatic --noinput
@@ -127,7 +131,7 @@ sudo -u $USER $APP_DIR/venv/bin/flask db upgrade
 # 设置日志目录权限
 mkdir -p /var/log/nginx
 mkdir -p /var/log/supervisor
-chown -R $USER:$GROUP logs/
+chown -R "$USER":"$GROUP" logs/
 
 # 测试Nginx配置
 echo "测试Nginx配置..."
@@ -138,12 +142,16 @@ echo "正在重启服务..."
 systemctl restart nginx
 supervisorctl reread
 supervisorctl update
-supervisorctl restart ohsteack_group:*
+supervisorctl restart ohsteack
 
 # 配置防火墙（如果使用ufw）
-echo "配置防火墙..."
-ufw allow 'Nginx Full'
-ufw allow OpenSSH
+if command -v ufw >/dev/null 2>&1; then
+    echo "配置防火墙..."
+    ufw allow 'Nginx Full'
+    ufw allow OpenSSH
+else
+    echo "未检测到ufw，跳过防火墙配置。"
+fi
 
 echo ""
 echo "========================================="

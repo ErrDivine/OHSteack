@@ -1,5 +1,37 @@
-.venv
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+*.egg-info/
+
+# Databases and uploads
+*.db
+*.sqlite
+instance/
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.cache/
+
+# IDE/editor files
 .idea/
+.vscode/
+*.swp
+.DS_Store
 
+# Environment files
+.env
+.env.*
 
-venv
+# Logs
+*.log
+logs/

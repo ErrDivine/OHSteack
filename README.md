@@ -85,12 +85,14 @@ OHSteack（Open Heap Stack Team Manager）是一个专为竞赛团队设计的�
    ```bash
    bash scripts/setup.sh
    ```
+   脚本会创建虚拟环境、安装依赖并生成默认的 `.env` 文件，同时可选择是否初始化本地 MySQL 数据库。
 
 3. **配置环境变量**
    ```bash
    # 编辑 .env 文件，配置数据库连接等信息
    nano .env
    ```
+   默认提供基于 SQLite 的开发/测试连接，如需 MySQL 请替换 `DEV_DATABASE_URL` 和 `TEST_DATABASE_URL`。
 
 4. **启动开发服务器**
    ```bash

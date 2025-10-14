@@ -65,7 +65,9 @@ sudo apt-get install -y \
     nginx \
     supervisor \
     git \
-    build-essential
+    build-essential \
+    libssl-dev \
+    libffi-dev
 ```
 
 ### 2. 配置MySQL数据库
@@ -96,7 +98,8 @@ sudo git clone https://github.com/yourusername/ohsteack.git .
 sudo python3 -m venv venv
 
 # 安装Python依赖
-sudo venv/bin/pip install -r requirements.txt
+sudo ./venv/bin/pip install --upgrade pip
+sudo ./venv/bin/pip install -r requirements.txt
 
 # 创建必要的目录
 sudo mkdir -p logs instance static/uploads
@@ -135,10 +138,10 @@ MAIL_DEFAULT_SENDER=noreply@ohsteack.com
 ```bash
 # 运行数据库迁移
 cd /var/www/ohsteack
-sudo venv/bin/flask db upgrade
+sudo FLASK_APP=run.py ./venv/bin/flask db upgrade
 
 # 创建管理员账户
-sudo venv/bin/flask create-admin
+sudo FLASK_APP=run.py ./venv/bin/flask create-admin
 ```
 
 ### 6. 配置Nginx
@@ -276,8 +279,8 @@ sudo bash scripts/update.sh
 ```bash
 cd /var/www/ohsteack
 sudo -u www-data git pull
-sudo -u www-data venv/bin/pip install -r requirements.txt
-sudo -u www-data venv/bin/flask db upgrade
+sudo -u www-data ./venv/bin/pip install -r requirements.txt
+sudo -u www-data FLASK_APP=run.py ./venv/bin/flask db upgrade
 sudo supervisorctl restart ohsteack
 ```
 
