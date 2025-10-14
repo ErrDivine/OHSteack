@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - OHSteack</title>
+    
+    <!-- Apple风格的CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="{{ url_for('main.index') }}" class="nav-brand">
+                    <i class="fas fa-layer-group"></i>
+                    OHSteack
+                </a>
+            </div>
+            
+            <div class="nav-center">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    仪表板
+                </a>
+                <a href="{{ url_for('team.list_teams') }}" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    团队
+                </a>
+                {% endif %}
+            </div>
+            
+            <div class="nav-right">
+                {% if current_user.is_authenticated %}
+                <div class="nav-user-menu">
+                    <button class="nav-user-button">
+                        <img src="{{ current_user.avatar_url or url_for('static', filename='images/default-avatar.png') }}" 
+                             alt="Avatar" class="nav-avatar">
+                        <span>{{ current_user.username }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="nav-dropdown">
+                        <a href="{{ url_for('auth.profile') }}" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            个人资料
+                        </a>
+                        <a href="{{ url_for('team.create') }}" class="dropdown-item">
+                            <i class="fas fa-plus-circle"></i>
+                            创建团队
+                        </a>
+                        {% if current_user.is_admin %}
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            管理后台
+                        </a>
+                        {% endif %}
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url_for('auth.logout') }}" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i>
+                            退出登录
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="nav-link">登录</a>
+                <a href="{{ url_for('auth.register') }}" class="nav-button">注册</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Flash消息 -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        <div class="flash-content">
+                            {% if category == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif category == 'error' %}
+                                <i class="fas fa-exclamation-circle"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                        <button class="flash-close" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- 主要内容 -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>OHSteack</h4>
+                <p>Open Heap Stack Team Manager</p>
+                <p>为竞赛团队打造的协作管理平台</p>
+            </div>
+            <div class="footer-section">
+                <h5>快速链接</h5>
+                <ul>
+                    <li><a href="{{ url_for('main.about') }}">关于我们</a></li>
+                    <li><a href="#">使用指南</a></li>
+                    <li><a href="#">API文档</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h5>联系我们</h5>
+                <ul>
+                    <li><i class="fas fa-envelope"></i> contact@ohsteack.com</li>
+                    <li><i class="fab fa-github"></i> GitHub</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 OHSteack. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

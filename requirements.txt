@@ -1,0 +1,41 @@
+# Flask核心框架
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.7
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+
+# 数据库
+PyMySQL==1.1.1
+SQLAlchemy==2.0.31
+
+# 表单验证
+WTForms==3.1.2
+email-validator==2.2.0
+
+# 密码加密
+Flask-Bcrypt==1.0.1
+
+# Markdown支持
+markdown2==2.5.0
+
+# 生产环境部署
+gunicorn==22.0.0
+
+# 开发工具
+python-dotenv==1.0.1
+
+# 时间处理
+python-dateutil==2.9.0
+
+# 文件上传
+Flask-Uploads==0.2.1
+
+# API支持（如果需要）
+Flask-RESTful==0.3.10
+
+# 会话管理
+Flask-Session==0.8.0
+
+# 邮件支持（用于通知）
+Flask-Mail==0.10.0

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}服务器错误{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-content">
+        <div class="error-icon error-icon-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h1 class="error-code">500</h1>
+        <h2 class="error-title">服务器错误</h2>
+        <p class="error-message">
+            抱歉，服务器遇到了一个错误。我们的技术团队已经收到通知，正在处理中。
+        </p>
+        <div class="error-actions">
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                <i class="fas fa-home"></i> 返回首页
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-icon-danger {
+    background: linear-gradient(135deg, #FF3B30 0%, #FF9500 100%);
+}
+</style>
+{% endblock %}

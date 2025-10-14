@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}仪表板{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <h1>仪表板</h1>
+        <p>您的团队协作数据概览</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.team_count }}</h3>
+                <p>加入的团队</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-database"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.resource_count }}</h3>
+                <p>共享资源</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.result_count }}</h3>
+                <p>创建成果</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.days_active }}</h3>
+                <p>活跃天数</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="dashboard-content">
+        <div class="content-section">
+            <h2>团队概览</h2>
+            {% if teams %}
+                <div class="teams-overview">
+                    {% for team in teams %}
+                    <div class="team-overview-card">
+                        <div class="team-header">
+                            <h3>
+                                <a href="{{ url_for('team.detail', team_id=team.id) }}">{{ team.name }}</a>
+                            </h3>
+                            <span class="badge badge-{{ team.status }}">{{ team.status }}</span>
+                        </div>
+                        
+                        <p class="team-description">{{ team.description|truncate(100) }}</p>
+                        
+                        {% set team_stats = team.get_statistics() %}
+                        <div class="team-stats">
+                            <div class="stat">
+                                <i class="fas fa-users"></i>
+                                <span>{{ team_stats.member_count }} 成员</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-database"></i>
+                                <span>{{ team_stats.resource_count }} 资源</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-trophy"></i>
+                                <span>{{ team_stats.result_count }} 成果</span>
+                            </div>
+                        </div>
+                        
+                        <div class="team-progress">
+                            {% if team.start_date and team.end_date %}
+                                {% set total_days = (team.end_date - team.start_date).days %}
+                                {% set elapsed_days = (today - team.start_date).days %}
+                                {% set progress = (elapsed_days / total_days * 100) if total_days > 0 else 0 %}
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ [progress, 100]|min }}%"></div>
+                                </div>
+                                <p class="progress-text">
+                                    项目进度：{{ [progress, 100]|min|round }}%
+                                    {% if progress < 100 %}
+                                        （还剩 {{ (team.end_date - today).days }} 天）
+                                    {% else %}
+                                        （已结束）
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="team-actions">
+                            <a href="{{ url_for('resource.list_resources', team_id=team.id) }}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-database"></i> 资源
+                            </a>
+                            <a href="{{ url_for('result.list_results', team_id=team.id) }}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-trophy"></i> 成果
+                            </a>
+                            {% if current_user.is_team_leader(team) %}
+                            <a href="{{ url_for('team.edit', team_id=team.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i> 管理
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <p>您还没有加入任何团队</p>
+                    <a href="{{ url_for('team.create') }}" class="btn btn-primary">创建第一个团队</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="content-section">
+            <h2>个人贡献</h2>
+            <div class="contribution-chart">
+                <canvas id="contributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.dashboard-header h1 {
+    font-size: 36px;
+    margin-bottom: 8px;
+}
+
+.dashboard-header p {
+    color: var(--text-tertiary);
+    font-size: 18px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 60px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon i {
+    font-size: 28px;
+    color: white;
+}
+
+.stat-content h3 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.stat-content p {
+    color: var(--text-tertiary);
+}
+
+.dashboard-content {
+    display: grid;
+    gap: 40px;
+}
+
+.content-section {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+}
+
+.content-section h2 {
+    font-size: 24px;
+    margin-bottom: 24px;
+}
+
+.teams-overview {
+    display: grid;
+    gap: 24px;
+}
+
+.team-overview-card {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: 24px;
+}
+
+.team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.team-header h3 {
+    font-size: 20px;
+}
+
+.team-description {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.team-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.team-stats .stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-tertiary);
+}
+
+.team-progress {
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: width var(--transition-slow);
+}
+
+.progress-text {
+    font-size: 14px;
+    color: var(--text-tertiary);
+}
+
+.team-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.contribution-chart {
+    height: 300px;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: 24px;
+    }
+    
+    .team-stats {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .team-actions {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 贡献图表
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('contributionChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['一月', '二月', '三月', '四月', '五月', '六月'],
+                datasets: [{
+                    label: '资源贡献',
+                    data: [12, 19, 3, 5, 2, 3],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: '成果贡献',
+                    data: [5, 8, 12, 7, 10, 15],
+                    borderColor: '#764ba2',
+                    backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

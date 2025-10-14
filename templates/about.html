@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}关于{% endblock %}
+
+{% block content %}
+<div class="about-hero">
+    <div class="container">
+        <h1>关于 OHSteack</h1>
+        <p class="lead">Open Heap Stack Team Manager - 为竞赛团队打造的协作管理平台</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="about-content">
+        <section class="about-section">
+            <h2>我们的理念</h2>
+            <p>
+                OHSteack 的设计灵感来源于计算机程序的运行机制。我们将团队协作过程类比为程序执行：
+            </p>
+            <div class="concept-cards">
+                <div class="concept-card">
+                    <div class="concept-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>资源是栈（Stack）</h3>
+                    <p>团队收集的学习资源、参考资料就像栈中的变量，为创新提供基础支撑</p>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>成果是堆（Heap）</h3>
+                    <p>团队创造的成果就像堆中动态分配的数据，不断迭代演进</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <h2>核心功能</h2>
+            <div class="features-detail">
+                <div class="feature-detail">
+                    <h3><i class="fas fa-users"></i> 团队管理</h3>
+                    <ul>
+                        <li>创建和管理竞赛团队</li>
+                        <li>邀请成员，分配角色</li>
+                        <li>跟踪项目进度和截止日期</li>
+                        <li>团队统计和成员贡献分析</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-detail">
+                    <h3><i class="fas fa-database"></i> 资源管理</h3>
+                    <ul>
+                        <li>系统化组织学习资源</li>
+                        <li>支持多种资源类型：文档、链接、文件、代码</li>
+                        <li>标签分类和搜索功能</li>
+                        <li>资源置顶和访问统计</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-detail">
+                    <h3><i class="fas fa-trophy"></i> 成果追踪</h3>
+                    <ul>
+                        <li>记录团队产出和创新成果</li>
+                        <li>版本控制和迭代历史</li>
+                        <li>支持附件和外部链接</li>
+                        <li>成果状态管理：草稿、进行中、审核、最终版</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <h2>技术特性</h2>
+            <div class="tech-features">
+                <div class="tech-item">
+                    <i class="fab fa-markdown"></i>
+                    <span>Markdown 编辑器</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-cloud"></i>
+                    <span>云端存储</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>响应式设计</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-lock"></i>
+                    <span>安全加密</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-code"></i>
+                    <span>开源项目</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-rocket"></i>
+                    <span>高性能</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <h2>使用场景</h2>
+            <div class="use-cases">
+                <div class="use-case">
+                    <h4>编程竞赛</h4>
+                    <p>ACM、算法竞赛、黑客马拉松等编程比赛的团队协作</p>
+                </div>
+                <div class="use-case">
+                    <h4>创新大赛</h4>
+                    <p>创业大赛、产品设计、创新挑战赛的项目管理</p>
+                </div>
+                <div class="use-case">
+                    <h4>学术竞赛</h4>
+                    <p>数学建模、科研竞赛、论文大赛的资料整理</p>
+                </div>
+                <div class="use-case">
+                    <h4>团队项目</h4>
+                    <p>课程项目、毕业设计、开源协作的进度追踪</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <h2>开始使用</h2>
+            <div class="get-started">
+                <p>立即注册，创建您的第一个团队，开始系统化的协作之旅！</p>
+                <div class="cta-buttons">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-user-plus"></i> 免费注册
+                    </a>
+                    <a href="#" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-book"></i> 查看文档
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+.about-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.about-hero h1 {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.lead {
+    font-size: 20px;
+    opacity: 0.9;
+}
+
+.about-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.about-section {
+    margin-bottom: 80px;
+}
+
+.about-section h2 {
+    font-size: 32px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.about-section p {
+    font-size: 18px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+}
+
+.concept-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.concept-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+}
+
+.concept-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.concept-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.concept-icon i {
+    font-size: 36px;
+    color: white;
+}
+
+.features-detail {
+    display: grid;
+    gap: 40px;
+}
+
+.feature-detail {
+    background: white;
+    padding: 32px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.feature-detail h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.feature-detail ul {
+    list-style: none;
+    padding-left: 36px;
+}
+
+.feature-detail li {
+    position: relative;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+}
+
+.feature-detail li:before {
+    content: "✓";
+    position: absolute;
+    left: -24px;
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+.tech-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.tech-item {
+    background: white;
+    padding: 24px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.tech-item i {
+    font-size: 32px;
+    color: var(--primary-color);
+}
+
+.use-cases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.use-case {
+    background: var(--gray-100);
+    padding: 24px;
+    border-radius: var(--radius-md);
+}
+
+.use-case h4 {
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.use-case p {
+    font-size: 16px;
+    margin-bottom: 0;
+}
+
+.get-started {
+    text-align: center;
+    background: white;
+    padding: 48px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 32px;
+}
+
+@media (max-width: 768px) {
+    .about-hero h1 {
+        font-size: 36px;
+    }
+    
+    .concept-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
+{% endblock %}

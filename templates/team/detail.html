@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}团队详情{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header d-flex justify-between align-center">
+        <div>
+            <h1>{{ team.name }}</h1>
+            <p class="text-muted">
+                {{ team.competition_name or '未指定竞赛' }}
+                {% if team.competition_url %}
+                    · <a href="{{ team.competition_url }}" target="_blank" rel="noopener">竞赛链接</a>
+                {% endif %}
+            </p>
+        </div>
+        <div class="actions">
+            {% if is_leader %}
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('team.edit', team_id=team.id) }}">编辑团队</a>
+            <a class="btn btn-primary btn-sm" href="{{ url_for('team.invite_member', team_id=team.id) }}">邀请成员</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">团队统计</h2>
+            </div>
+            <div class="card-body stats-grid">
+                <div>
+                    <div class="stat-value">{{ stats.member_count }}</div>
+                    <div class="stat-label">成员</div>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.resource_count }}</div>
+                    <div class="stat-label">资源</div>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.result_count }}</div>
+                    <div class="stat-label">成果</div>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.active_days }}</div>
+                    <div class="stat-label">活跃天数</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">成员</h2>
+            </div>
+            <div class="card-body">
+                {% if members %}
+                    <ul class="item-list">
+                        {% for member in members %}
+                        <li class="item-row">
+                            <div>
+                                <strong>{{ member.full_name or member.username }}</strong>
+                                <div class="text-muted small">{{ member.email }}</div>
+                            </div>
+                            <div class="text-muted small">
+                                {% if leader and leader.id == member.id %}
+                                    <span class="badge badge-primary">团队领导</span>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty-state">
+                        <p>该团队暂无成员。</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header d-flex justify-between align-center">
+            <h2 class="card-title">最近资源</h2>
+            {% if is_member %}
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('resource.list_resources', team_id=team.id) }}">查看全部</a>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% if recent_resources %}
+                <ul class="item-list">
+                    {% for resource in recent_resources %}
+                    <li class="item-row">
+                        <div>
+                            <strong><a href="{{ url_for('resource.detail', resource_id=resource.id) }}">{{ resource.title }}</a></strong>
+                            <div class="text-muted small">
+                                {{ resource.creator.username }} · {{ resource.created_at.strftime('%Y-%m-%d') if resource.created_at else '未知时间' }}
+                            </div>
+                        </div>
+                        <div class="text-muted small">
+                            类型：{{ resource.resource_type }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <p>暂无资源。</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header d-flex justify-between align-center">
+            <h2 class="card-title">最近成果</h2>
+            {% if is_member %}
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('result.list_results', team_id=team.id) }}">查看全部</a>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% if recent_results %}
+                <ul class="item-list">
+                    {% for result in recent_results %}
+                    <li class="item-row">
+                        <div>
+                            <strong><a href="{{ url_for('result.detail', result_id=result.id) }}">{{ result.title }}</a></strong>
+                            <div class="text-muted small">
+                                状态：{{ result.status }} · v{{ result.version }}
+                            </div>
+                        </div>
+                        <div class="text-muted small">
+                            更新于 {{ result.updated_at.strftime('%Y-%m-%d') if result.updated_at else '未知时间' }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <p>暂无成果。</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

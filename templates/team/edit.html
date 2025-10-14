@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}编辑团队{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>编辑团队信息</h1>
+        <p class="text-muted">更新团队基础信息和竞赛详情。</p>
+    </div>
+
+    <form method="post" novalidate class="card form-card">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control") }}
+            {% for error in form.name.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-control", rows="4") }}
+            {% for error in form.description.errors %}
+                <div class="form-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.competition_name.label(class="form-label") }}
+                {{ form.competition_name(class="form-control") }}
+                {% for error in form.competition_name.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.competition_url.label(class="form-label") }}
+                {{ form.competition_url(class="form-control") }}
+                {% for error in form.competition_url.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.start_date.label(class="form-label") }}
+                {{ form.start_date(class="form-control", type="date") }}
+                {% for error in form.start_date.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.end_date.label(class="form-label") }}
+                {{ form.end_date(class="form-control", type="date") }}
+                {% for error in form.end_date.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.status.label(class="form-label") }}
+                {{ form.status(class="form-control") }}
+                {% for error in form.status.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-secondary" href="{{ url_for('team.detail', team_id=team.id) }}">取消</a>
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
