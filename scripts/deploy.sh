@@ -101,7 +101,7 @@ fi
 echo "正在配置Supervisor..."
 cp deployment/supervisor/ohsteack.conf /etc/supervisor/conf.d/
 
-# 创建生产环境配置
+# 创建或更新生产环境配置
 if [ ! -f .env ]; then
     echo "正在创建生产环境配置..."
     cat > .env << EOL
@@ -123,7 +123,20 @@ MAIL_DEFAULT_SENDER=noreply@ohsteack.com
 EOL
     chown "$USER":"$GROUP" .env
     chmod 600 .env
-    echo "✓ 请编辑 .env 文件配置数据库密码等信息"
+    echo "✓ 已创建 .env 文件"
+else
+    echo "检测到已有 .env，正在更新数据库配置..."
+    if grep -q "^DATABASE_URL=" .env; then
+        sed -i "s#^DATABASE_URL=.*#DATABASE_URL=mysql+pymysql://$DB_USER:$DB_PASS@localhost/$DB_NAME?charset=utf8mb4#g" .env
+    else
+        echo "DATABASE_URL=mysql+pymysql://$DB_USER:$DB_PASS@localhost/$DB_NAME?charset=utf8mb4" >> .env
+    fi
+    if ! grep -q "^FLASK_ENV=" .env; then
+        echo "FLASK_ENV=production" >> .env
+    fi
+    chown "$USER":"$GROUP" .env
+    chmod 600 .env
+    echo "✓ 已刷新 .env 中的数据库连接串"
 fi
 
 # 配置MySQL
