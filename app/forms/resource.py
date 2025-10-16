@@ -31,7 +31,8 @@ class ResourceForm(FlaskForm):
     file = FileField('上传文件', validators=[
         Optional(),
         FileAllowed(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 
-                    'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'md'],
+                    'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'md',
+                    'zip', 'rar', '7z', 'tar', 'gz'],
                    message='不支持的文件格式')
     ])
     category = SelectField('分类', choices=[

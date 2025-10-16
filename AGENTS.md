@@ -1,19 +1,19 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-The Flask application factory lives in `app/__init__.py`, wiring blueprints from `app/views/` (main, auth, team, resource, result). Feature templates stay under `templates/<blueprint>/`, while forms, models, and shared helpers live respectively in `app/forms/`, `app/models/`, and `app/utils/`. Static assets, uploads, and bundles sit in `static/`, and deployment or provisioning scripts reside in `scripts/` and `deployment/`. Database migrations are tracked in `migrations/`, with environment-specific overrides in `instance/`.
+The Flask factory in `app/__init__.py` wires blueprints from `app/views/` (main, auth, team, resource, result). Feature-specific templates live under `templates/<blueprint>/`, while shared helpers stay in `app/utils/`. Keep forms and models in `app/forms/` and `app/models/`; static assets, uploads, and bundles belong in `static/`. Migrations reside in `migrations/`, environment overrides in `instance/`, and deployment scripts under `scripts/` and `deployment/`.
 
 ## Build, Test, and Development Commands
-Run `bash scripts/setup.sh` once to install dependencies and create expected directories, then activate the environment with `source venv/bin/activate`. Start the API locally with `FLASK_APP=run.py flask run`. Apply schema changes via `flask db upgrade`, initialize a fresh database using `flask init-db`, and seed an administrator through `flask create-admin`. Use `pip install -r requirements.txt` inside the virtualenv whenever dependencies change.
+Run `bash scripts/setup.sh` once to install dependencies and prepare directories. Activate the virtualenv with `source venv/bin/activate`. Start the API using `FLASK_APP=run.py flask run`. Apply schema updates via `flask db upgrade`, initialize a fresh database with `flask init-db`, and seed an administrator using `flask create-admin`. Install new requirements through `pip install -r requirements.txt` inside the environment.
 
 ## Coding Style & Naming Conventions
-Follow PEP 8 with 4-space indentation, expressive docstrings, and `snake_case` identifiers. Blueprint modules must expose a `<name>_bp` object, and template filenames should mirror their blueprint paths (e.g., `templates/team/detail.html`). Keep reusable Jinja filters in `app/utils/filters.py` and register them through the factory. Default to ASCII unless a template already contains localized UTF-8 strings.
+Follow PEP 8 with 4-space indentation, descriptive docstrings, and `snake_case` naming. Blueprint modules must expose `<name>_bp`, and templates should mirror their blueprint path (for example, `templates/team/detail.html`). Keep reusable Jinja filters in `app/utils/filters.py` and register them through the factory. Default to ASCII unless extending an existing localized template.
 
 ## Testing Guidelines
-Pytest runs against Flask’s test client; execute `pytest` or target feature suites such as `pytest tests/test_team_routes.py`. Organize test modules by blueprint, arrange-act-assert within each case, and use factory fixtures for setup. Ensure tests leave the database clean by relying on rollbacks or temporary transactions.
+Use pytest with the Flask test client; run the full suite via `pytest` or target a module like `pytest tests/test_team_routes.py`. Structure cases as arrange-act-assert, rely on fixtures for setup, and let database interactions roll back to keep tests isolated.
 
 ## Commit & Pull Request Guidelines
-Write imperative commit messages (`Add team dashboard template`) and bundle related code, migrations, and docs together. Reference issue IDs when applicable. Pull requests should include a concise summary, screenshots for UI work, migration notes (`flask db upgrade`), and proof of local testing or manual verification. Call out configuration changes and provide `.env` updates for reviewers.
+Write imperative commit messages (e.g., “Add team dashboard template”) and bundle related migrations, docs, and code together. Pull requests should summarize changes, link relevant issues, include screenshots for UI updates, and note any `flask db upgrade` impacts or `.env` updates. Mention manual verification or test results before requesting review.
 
 ## Security & Configuration Tips
-Store secrets in `.env` and never commit them. Review `config.py` before adding feature flags, prefer environment variables over hard-coded defaults, and keep `static/uploads/` sanitized. Confirm file permissions and logging behavior before deploying.
+Store secrets in `.env` and keep it out of version control. Prefer environment variables over hard-coded settings, review `config.py` for feature flags, and ensure `static/uploads/` stays sanitized. Confirm logging and file permissions align with deployment expectations.

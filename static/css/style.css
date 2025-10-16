@@ -682,6 +682,55 @@ a:hover {
     font-weight: 600;
 }
 
+.section-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--accent);
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.14);
+    transition: background var(--transition), color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.section-link i {
+    font-size: 0.8rem;
+    transition: transform var(--transition);
+}
+
+.section-link:hover {
+    color: var(--accent-strong);
+    background: rgba(59, 130, 246, 0.16);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.section-link:hover i {
+    transform: translateX(3px);
+}
+
+.section-actions .btn.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 999px;
+}
+
+.space-section header > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
 .team-space-grid {
     display: grid;
     gap: 24px;

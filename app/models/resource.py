@@ -56,7 +56,7 @@ class Resource(db.Model):
         """检查用户是否可以编辑此资源"""
         if not user.is_authenticated:
             return False
-        return user.is_admin or user.id == self.creator_id or user.is_team_leader(self.team)
+        return user.is_admin or user.id == self.creator_id or user.is_team_member(self.team)
     
     def to_dict(self):
         """转换为字典"""

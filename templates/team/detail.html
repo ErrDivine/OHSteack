@@ -53,9 +53,15 @@
                     <h2>资源栈</h2>
                     <p>团队正在使用的核心资料与链接。</p>
                 </div>
-                {% if is_member %}
-                <a class="btn btn-secondary btn-sm" href="{{ url_for('resource.create', team_id=team.id) }}">新增资源</a>
-                {% endif %}
+                <div class="section-actions">
+                    <a href="{{ url_for('resource.list_resources', team_id=team.id) }}" class="section-link">
+                        查看资源
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    {% if is_member %}
+                    <a class="btn btn-secondary btn-sm" href="{{ url_for('resource.create', team_id=team.id) }}">新增资源</a>
+                    {% endif %}
+                </div>
             </header>
             {% if resource_stack %}
             <ul class="space-items">
@@ -74,6 +80,7 @@
                 <span>资源栈为空，开始整理第一份资料吧。</span>
             </div>
             {% endif %}
+
         </section>
 
         <section class="card space-section">
@@ -82,9 +89,15 @@
                     <h2>成果堆</h2>
                     <p>记录每次迭代，追踪团队现在的进展。</p>
                 </div>
-                {% if is_member %}
-                <a class="btn btn-secondary btn-sm" href="{{ url_for('result.create', team_id=team.id) }}">新增成果</a>
-                {% endif %}
+                <div class="section-actions">
+                    <a href="{{ url_for('result.list_results', team_id=team.id) }}" class="section-link">
+                        查看成果
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    {% if is_member %}
+                    <a class="btn btn-secondary btn-sm" href="{{ url_for('result.create', team_id=team.id) }}">新增成果</a>
+                    {% endif %}
+                </div>
             </header>
             {% if result_heap %}
             <ul class="space-items">
