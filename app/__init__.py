@@ -66,5 +66,10 @@ def create_app(config_name='default'):
     def load_user(user_id):
         from app.models import User
         return User.query.get(int(user_id))
+
+    @app.context_processor
+    def inject_asset_version():
+        """Provide asset version for cache busting."""
+        return {'asset_version': app.config.get('ASSET_VERSION', 'dev')}
     
     return app

@@ -28,6 +28,7 @@ class Config:
         'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'xls', 'xlsx',
         'ppt', 'pptx', 'md', 'zip', 'rar', '7z', 'tar', 'gz'
     }
+    ASSET_VERSION = os.environ.get('ASSET_VERSION', 'dev')
     
     # 邮件配置
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')

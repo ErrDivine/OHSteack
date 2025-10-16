@@ -58,6 +58,14 @@ else
     echo "SESSION_COOKIE_SECURE=false" >> "$APP_DIR/.env"
 fi
 
+# 更新静态资源版本号用于缓存刷新
+ASSET_VERSION=$(sudo -u "$USER" git rev-parse --short HEAD 2>/dev/null || date +%s)
+if grep -q "^ASSET_VERSION=" "$APP_DIR/.env"; then
+    sed -i "s/^ASSET_VERSION=.*/ASSET_VERSION=$ASSET_VERSION/" "$APP_DIR/.env"
+else
+    echo "ASSET_VERSION=$ASSET_VERSION" >> "$APP_DIR/.env"
+fi
+
 # 收集静态文件（如果需要）
 # echo "正在收集静态文件..."
 # sudo -u $USER $APP_DIR/venv/bin/python manage.py collectstatic --noinput
