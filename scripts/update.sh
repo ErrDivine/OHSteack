@@ -40,10 +40,8 @@ echo "✓ 备份已创建: $BACKUP_DIR/backup_$TIMESTAMP.tar.gz"
 # echo "正在启用维护模式..."
 # touch maintenance.flag
 
-# 拉取最新代码
-echo "正在更新代码..."
-sudo -u "$USER" git fetch origin
-sudo -u "$USER" git pull origin "$BRANCH"
+# 拉取最新代码（已手动完成）
+echo "跳过 git fetch/pull，假设代码已手动同步到 $APP_DIR"
 
 # 更新依赖
 echo "正在更新Python依赖..."
